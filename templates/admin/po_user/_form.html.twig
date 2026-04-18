@@ -1,0 +1,36 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Compte</h3>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div>
+        {{ form_label(form.name, 'Nom', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Richard NGU'}}) }}
+        {{ form_errors(form.name) }}
+      </div>
+      <div>
+        {{ form_label(form.email, 'Email', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'prenom.nom@entreprise.fr'}}) }}
+        {{ form_errors(form.email) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Autorisations</h3>
+    <div>
+      {{ form_label(form.roles, 'Roles', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+      {{ form_widget(form.roles) }}
+      <p class="mt-1 text-xs text-muted">{{ form_help(form.roles) }}</p>
+      {{ form_errors(form.roles) }}
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 pt-1">
+    <button type="submit" class="btn btn-primary">
+      {{ button_label|default('Enregistrer') }}
+    </button>
+    <a href="{{ path('app_po_user_index') }}" class="text-sm text-muted hover:text-text transition">Annuler</a>
+  </div>
+
+{{ form_end(form) }}

@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Service;
+
+final class MemberImportReport
+{
+    public function __construct(
+        public int $created = 0,
+        public int $updated = 0,
+        public int $skipped = 0,
+        public int $createdSectors = 0
+    ) {
+    }
+}
+

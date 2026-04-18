@@ -1,0 +1,59 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Informations principales</h3>
+    <div class="grid sm:grid-cols-2 gap-6">
+      <div>
+        {{ form_label(form.label, 'Libelle', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.label, {'attr': {'class': 'form-control', 'placeholder': 'Ex : Gestion des secteurs'}}) }}
+        {{ form_errors(form.label) }}
+      </div>
+      <div>
+        {{ form_label(form.category, 'Categorie', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.category, {'attr': {'class': 'form-control', 'placeholder': 'Ex : Administration'}}) }}
+        {{ form_errors(form.category) }}
+        <p class="mt-1 text-xs text-muted">Optionnel. Permet de regrouper les fonctionnalites.</p>
+      </div>
+    </div>
+    <div class="mt-6">
+      {{ form_label(form.description, 'Description', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+      {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3, 'placeholder': 'Description courte de la fonctionnalite'}}) }}
+      {{ form_errors(form.description) }}
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Ciblage technique</h3>
+    <div class="grid sm:grid-cols-2 gap-6">
+      <div>
+        {{ form_label(form.routeName, 'Route Symfony', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.routeName, {'attr': {'class': 'form-control font-mono', 'placeholder': 'Ex : app_secteur_index'}}) }}
+        {{ form_errors(form.routeName) }}
+        <p class="mt-1 text-xs text-muted">Utilisee seulement si le champ URL est vide.</p>
+      </div>
+      <div>
+        {{ form_label(form.url, 'URL (fallback)', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.url, {'attr': {'class': 'form-control', 'placeholder': 'Ex : /admin/secteur'}}) }}
+        {{ form_errors(form.url) }}
+        <p class="mt-1 text-xs text-muted">Utilisee si aucune route n'est definie.</p>
+      </div>
+    </div>
+    <div class="mt-6">
+      {{ form_label(form.icon, 'Icone Lucide', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+      {{ form_widget(form.icon, {'attr': {'class': 'form-control font-mono', 'placeholder': 'Ex : building-2'}}) }}
+      {{ form_errors(form.icon) }}
+      <p class="mt-1 text-xs text-muted">
+        Nom d'icone depuis
+        <a href="https://lucide.dev/icons" target="_blank" rel="noopener" class="text-indigo-400 hover:underline">lucide.dev</a>.
+      </p>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 pt-1">
+    <button type="submit" class="btn btn-primary">
+      {{ button_label|default('Enregistrer') }}
+    </button>
+    <a href="{{ path('app_feature_index') }}" class="text-sm text-muted hover:text-text transition">Annuler</a>
+  </div>
+
+{{ form_end(form) }}

@@ -1,0 +1,143 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Identity</h3>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div>
+        {{ form_label(form.shortTitle, 'Short title', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.shortTitle, {'attr': {'class': 'form-control', 'placeholder': 'Ex: M., Mme'}}) }}
+        {{ form_errors(form.shortTitle) }}
+      </div>
+      <div>
+        {{ form_label(form.rgpdConsent, 'RGPD consent', {'label_attr': {'class': 'text-sm font-medium text-text'}}) }}
+        <div class="mt-2 flex items-center gap-3">
+          {{ form_widget(form.rgpdConsent, {'attr': {'class': 'h-4 w-4 rounded border-border'}}) }}
+          <span class="text-sm text-muted">Consentement explicite</span>
+        </div>
+        {{ form_errors(form.rgpdConsent) }}
+      </div>
+      <div>
+        {{ form_label(form.lastNameOrCompany, 'Last name / company', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.lastNameOrCompany, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.lastNameOrCompany) }}
+      </div>
+      <div>
+        {{ form_label(form.firstNameOrService, 'First name / service', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.firstNameOrService, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.firstNameOrService) }}
+      </div>
+      <div>
+        {{ form_label(form.birthName, 'Birth name', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.birthName, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.birthName) }}
+      </div>
+      <div>
+        {{ form_label(form.sector, 'Sector', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.sector, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.sector) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Contact</h3>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div class="lg:col-span-2">
+        {{ form_label(form.address, 'Address', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.address, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+        {{ form_errors(form.address) }}
+      </div>
+      <div>
+        {{ form_label(form.postalCode, 'Postal code', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.postalCode, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.postalCode) }}
+      </div>
+      <div>
+        {{ form_label(form.city, 'City', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.city, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.city) }}
+      </div>
+      <div>
+        {{ form_label(form.homePhone, 'Home phone', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.homePhone, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.homePhone) }}
+      </div>
+      <div>
+        {{ form_label(form.mobilePhone, 'Mobile phone', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.mobilePhone, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.mobilePhone) }}
+      </div>
+      <div class="lg:col-span-2">
+        {{ form_label(form.preferredEmail, 'Preferred email', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.preferredEmail, {'attr': {'class': 'form-control', 'placeholder': 'name@company.com'}}) }}
+        {{ form_errors(form.preferredEmail) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Dates</h3>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div>
+        {{ form_label(form.birthOrFoundedAt, 'Birth / founded date', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.birthOrFoundedAt, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.birthOrFoundedAt) }}
+      </div>
+      <div>
+        {{ form_label(form.baptismAt, 'Baptism date', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.baptismAt, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.baptismAt) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Follow-up</h3>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div>
+        {{ form_label(form.lastContactName, 'Last contact name', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.lastContactName, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.lastContactName) }}
+      </div>
+      <div>
+        {{ form_label(form.contactChannel, 'Contact channel', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.contactChannel, {'attr': {'class': 'form-control', 'placeholder': 'Telephone ou visite'}}) }}
+        {{ form_errors(form.contactChannel) }}
+      </div>
+      <div>
+        {{ form_label(form.lastContactAt, 'Last contact date', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.lastContactAt, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.lastContactAt) }}
+      </div>
+      <div></div>
+      <div>
+        {{ form_label(form.latitude, 'Latitude', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.latitude, {'attr': {'class': 'form-control', 'step': 'any'}}) }}
+        {{ form_errors(form.latitude) }}
+      </div>
+      <div>
+        {{ form_label(form.longitude, 'Longitude', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.longitude, {'attr': {'class': 'form-control', 'step': 'any'}}) }}
+        {{ form_errors(form.longitude) }}
+      </div>
+      <div class="lg:col-span-2">
+        {{ form_label(form.modificationToApply, 'Modification to apply', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.modificationToApply, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+        {{ form_errors(form.modificationToApply) }}
+      </div>
+      <div class="lg:col-span-2">
+        {{ form_label(form.remarks, 'Remarks', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.remarks, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+        {{ form_errors(form.remarks) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 pt-1">
+    <button type="submit" class="btn btn-primary">
+      {{ button_label|default('Save') }}
+    </button>
+    <a href="{{ path('app_member_index') }}" class="text-sm text-muted hover:text-text transition">Cancel</a>
+  </div>
+
+{{ form_end(form) }}

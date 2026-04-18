@@ -1,0 +1,522 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Carte des membres - Administration - Intranet PO{% endblock %}
+
+{% block page_header %}{% endblock %}
+
+{% block content %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    #dashboard .main-content > header {
+      display: none !important;
+    }
+
+    #dashboard .main-content .inner-content {
+      padding: 0 !important;
+    }
+
+    .member-map-page {
+      padding: 1.1rem 1.2rem 1rem;
+    }
+
+    .member-map-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .member-map-title {
+      font-size: 2.1rem;
+      line-height: 1.1;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .member-map-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      width: min(100%, 520px);
+    }
+
+    .member-map-search,
+    .member-map-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      height: 40px;
+      border-radius: 0.8rem;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: #f8fafc;
+      color: #475569;
+      padding: 0 0.8rem;
+    }
+
+    .member-map-search {
+      flex: 1 1 auto;
+      position: relative;
+    }
+
+    .member-map-search input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #0f172a;
+      font-size: 0.95rem;
+    }
+
+    .member-map-search input::placeholder {
+      color: #94a3b8;
+    }
+
+    .member-map-filter {
+      min-width: 190px;
+      position: relative;
+    }
+
+    .member-map-filter select {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #475569;
+      font-size: 0.95rem;
+      padding-right: 1.25rem;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+    }
+
+    .member-map-filter .chevron {
+      position: absolute;
+      right: 0.65rem;
+      pointer-events: none;
+    }
+
+    .member-search-suggestions {
+      position: absolute;
+      top: calc(100% + 0.35rem);
+      left: 0;
+      right: 0;
+      border-radius: 0.7rem;
+      border: 1px solid rgba(148, 163, 184, 0.32);
+      background: #ffffff;
+      box-shadow: 0 8px 26px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+      z-index: 900;
+      max-height: 260px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .member-search-suggestions.is-visible {
+      display: block;
+    }
+
+    .member-search-suggestion {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0.65rem;
+      border: 0;
+      background: #ffffff;
+      color: #1e293b;
+      font-size: 0.85rem;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .member-search-suggestion + .member-search-suggestion {
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .member-search-suggestion:hover {
+      background: #f8fafc;
+    }
+
+    #membersMap {
+      width: 100%;
+      height: calc(100vh - 96px);
+      min-height: 560px;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      overflow: hidden;
+    }
+
+    .map-popup-title {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 0.3rem;
+      font-size: 0.92rem;
+    }
+
+    .map-popup-line {
+      font-size: 0.76rem;
+      color: #475569;
+      margin-top: 0.12rem;
+      line-height: 1.3;
+    }
+
+    .map-popup-route {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 0.45rem;
+      font-size: 0.78rem;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .map-popup-route:hover {
+      text-decoration: underline;
+    }
+
+    .member-pin {
+      display: block;
+      width: 24px;
+      height: 24px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      background: #7d9a3a;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.32);
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.92);
+    }
+
+    .member-pin::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #ffffff;
+      position: absolute;
+      top: 7px;
+      left: 7px;
+    }
+
+    @media (max-width: 980px) {
+      .member-map-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .member-map-title {
+        font-size: 1.75rem;
+      }
+
+      .member-map-controls {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <div class="member-map-page">
+    <div class="member-map-toolbar">
+      <h1 class="member-map-title">Carte interactive</h1>
+
+      <div class="member-map-controls">
+        <div class="member-map-search">
+          <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
+          <input id="memberSearchInput"
+                 type="search"
+                 placeholder="Recherche"
+                 aria-label="Recherche membre"
+                 autocomplete="off" />
+          <div id="memberSearchSuggestions" class="member-search-suggestions" aria-live="polite"></div>
+        </div>
+
+        <div class="member-map-filter">
+          <i data-lucide="sliders-horizontal" class="w-5 h-5 text-slate-400"></i>
+          <select id="sectorFilterSelect" aria-label="Filtrer par secteur">
+            <option value="">Filtrer</option>
+          </select>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 chevron"></i>
+        </div>
+      </div>
+    </div>
+
+    <div id="membersMap" role="region" aria-label="Carte des membres"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    (function () {
+      if (typeof L === 'undefined') {
+        return;
+      }
+
+      const points = {{ memberPoints|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }};
+      const map = L.map('membersMap', { zoomControl: true, preferCanvas: true });
+      const mulhouseCenter = [47.7508, 7.3359];
+      const mulhouseZoom = 9;
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      map.setView(mulhouseCenter, mulhouseZoom);
+
+      const escapeHtml = (value) => {
+        const text = String(value ?? '');
+        return text
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#039;');
+      };
+
+      const normalize = (value) => String(value ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+
+      const markerIcon = L.divIcon({
+        className: 'member-pin-wrapper',
+        html: '<span class="member-pin"></span>',
+        iconSize: [24, 24],
+        iconAnchor: [11, 22],
+        popupAnchor: [2, -20]
+      });
+
+      const searchInput = document.getElementById('memberSearchInput');
+      const sectorSelect = document.getElementById('sectorFilterSelect');
+      const suggestionsBox = document.getElementById('memberSearchSuggestions');
+      const markersLayer = L.layerGroup().addTo(map);
+
+      const usablePoints = Array.isArray(points)
+        ? points.filter((point) => typeof point.lat === 'number' && typeof point.lng === 'number')
+        : [];
+
+      const sectors = [...new Set(
+        usablePoints
+          .map((point) => String(point.sector ?? '').trim())
+          .filter((value) => value !== '')
+      )].sort((a, b) => a.localeCompare(b, 'fr'));
+
+      sectors.forEach((sector) => {
+        const option = document.createElement('option');
+        option.value = sector;
+        option.textContent = sector;
+        sectorSelect.appendChild(option);
+      });
+
+      const markerModels = usablePoints.map((point) => {
+        const marker = L.marker([point.lat, point.lng], { icon: markerIcon });
+        const popup = [
+          `<div class="map-popup-title">${escapeHtml(point.name)}</div>`,
+          point.sector ? `<div class="map-popup-line">Secteur: ${escapeHtml(point.sector)}</div>` : '',
+          point.city ? `<div class="map-popup-line">Ville: ${escapeHtml(point.city)}</div>` : '',
+          point.address ? `<div class="map-popup-line">${escapeHtml(point.address)}</div>` : '',
+          point.email ? `<div class="map-popup-line">Email: ${escapeHtml(point.email)}</div>` : '',
+          point.phone ? `<div class="map-popup-line">Tel: ${escapeHtml(point.phone)}</div>` : '',
+          `<a href="#" class="map-popup-route" data-lat="${point.lat}" data-lng="${point.lng}">Itineraire Google Maps</a>`
+        ].join('');
+
+        marker.bindPopup(popup, { maxWidth: 320 });
+
+        const searchable = [
+          point.lastName,
+          point.firstName,
+          point.email,
+        ]
+          .map(normalize)
+          .filter((value) => value !== '')
+          .join(' ');
+
+        return { point, marker, searchable };
+      });
+
+      const buildSuggestionLabel = (point) => {
+        const fullName = [point.lastName, point.firstName]
+          .map((part) => String(part ?? '').trim())
+          .filter((part) => part !== '')
+          .join(' ');
+
+        if (fullName !== '' && point.email) {
+          return `${fullName} - ${point.email}`;
+        }
+
+        return fullName !== '' ? fullName : String(point.email ?? '').trim();
+      };
+
+      const suggestionModels = markerModels
+        .map((item) => {
+          const label = buildSuggestionLabel(item.point);
+          const applyValue = String(item.point.email ?? '').trim() || [item.point.lastName, item.point.firstName]
+            .map((part) => String(part ?? '').trim())
+            .filter((part) => part !== '')
+            .join(' ');
+
+          if (label === '' || applyValue === '') {
+            return null;
+          }
+
+          return {
+            label,
+            searchable: item.searchable,
+            applyValue,
+            sector: String(item.point.sector ?? '').trim(),
+          };
+        })
+        .filter((item) => item !== null);
+
+      const applyFilters = () => {
+        markersLayer.clearLayers();
+
+        const searchTerm = normalize(searchInput.value);
+        const sector = String(sectorSelect.value ?? '').trim();
+
+        markerModels.forEach((item) => {
+          const matchesSearch = searchTerm === '' || item.searchable.includes(searchTerm);
+          const matchesSector = sector === '' || String(item.point.sector ?? '') === sector;
+
+          if (matchesSearch && matchesSector) {
+            markersLayer.addLayer(item.marker);
+          }
+        });
+      };
+
+      const openGoogleDirections = (destinationLat, destinationLng) => {
+        const destination = `${destinationLat},${destinationLng}`;
+        const buildUrl = (origin) => {
+          const url = new URL('https://www.google.com/maps/dir/');
+          url.searchParams.set('api', '1');
+          url.searchParams.set('destination', destination);
+          url.searchParams.set('travelmode', 'driving');
+          if (origin) {
+            url.searchParams.set('origin', origin);
+          }
+
+          return url.toString();
+        };
+
+        const openUrl = (url) => window.open(url, '_blank', 'noopener');
+
+        if (!navigator.geolocation) {
+          openUrl(buildUrl(''));
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const origin = `${position.coords.latitude},${position.coords.longitude}`;
+            openUrl(buildUrl(origin));
+          },
+          () => {
+            openUrl(buildUrl(''));
+          },
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
+        );
+      };
+
+      const hideSuggestions = () => {
+        suggestionsBox.classList.remove('is-visible');
+        suggestionsBox.innerHTML = '';
+      };
+
+      const showSuggestions = (value) => {
+        const searchTerm = normalize(value);
+        const selectedSector = String(sectorSelect.value ?? '').trim();
+        if (searchTerm.length < 4) {
+          hideSuggestions();
+          return;
+        }
+
+        const seen = new Set();
+        const matches = suggestionModels
+          .filter((item) => {
+            const matchesSearch = item.searchable.includes(searchTerm);
+            const matchesSector = selectedSector === '' || item.sector === selectedSector;
+            return matchesSearch && matchesSector;
+          })
+          .filter((item) => {
+            const key = normalize(item.label);
+            if (seen.has(key)) {
+              return false;
+            }
+
+            seen.add(key);
+            return true;
+          })
+          .slice(0, 8);
+
+        if (matches.length === 0) {
+          hideSuggestions();
+          return;
+        }
+
+        suggestionsBox.innerHTML = '';
+
+        matches.forEach((item) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'member-search-suggestion';
+          button.textContent = item.label;
+          button.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+            searchInput.value = item.applyValue;
+            hideSuggestions();
+            applyFilters();
+          });
+          suggestionsBox.appendChild(button);
+        });
+
+        suggestionsBox.classList.add('is-visible');
+      };
+
+      searchInput.addEventListener('input', () => {
+        applyFilters();
+        showSuggestions(searchInput.value);
+      });
+      sectorSelect.addEventListener('change', () => {
+        applyFilters();
+        showSuggestions(searchInput.value);
+      });
+      searchInput.addEventListener('blur', () => {
+        window.setTimeout(hideSuggestions, 120);
+      });
+      searchInput.addEventListener('focus', () => {
+        showSuggestions(searchInput.value);
+      });
+      document.addEventListener('click', (event) => {
+        if (!event.target.closest('.member-map-search')) {
+          hideSuggestions();
+        }
+      });
+
+      map.on('popupopen', (event) => {
+        const popupElement = event.popup.getElement();
+        if (!popupElement) {
+          return;
+        }
+
+        const routeLink = popupElement.querySelector('.map-popup-route');
+        if (!routeLink) {
+          return;
+        }
+
+        routeLink.addEventListener('click', (clickEvent) => {
+          clickEvent.preventDefault();
+          const destinationLat = Number(routeLink.dataset.lat);
+          const destinationLng = Number(routeLink.dataset.lng);
+          if (!Number.isFinite(destinationLat) || !Number.isFinite(destinationLng)) {
+            return;
+          }
+
+          openGoogleDirections(destinationLat, destinationLng);
+        });
+      });
+
+      applyFilters();
+    })();
+  </script>
+{% endblock %}

@@ -1,0 +1,638 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+  {% set selectedIds = selectedFeatureIds|default([]) %}
+  {% set selectedIdsCsv = selectedIds|join(',') %}
+
+  <style>
+    .module-feature-catalog {
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 1rem;
+      padding: 1rem;
+      background: rgba(148, 163, 184, 0.05);
+    }
+
+    .module-feature-toolbar {
+      display: grid;
+      gap: 0.65rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .module-feature-search-wrap {
+      display: flex;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    .module-feature-search-wrap .form-control {
+      min-height: 2.4rem;
+    }
+
+    .module-feature-groups {
+      display: grid;
+      gap: 0.7rem;
+      max-height: min(64vh, 720px);
+      overflow: auto;
+      padding-right: 0.25rem;
+    }
+
+    .module-feature-group {
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 0.9rem;
+      background: rgba(148, 163, 184, 0.04);
+    }
+
+    .module-feature-group__header {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      padding: 0.8rem 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.9rem;
+      cursor: pointer;
+    }
+
+    .module-feature-group__title-wrap {
+      min-width: 0;
+      display: grid;
+      gap: 0.18rem;
+    }
+
+    .module-feature-group__title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text);
+      line-height: 1.25;
+    }
+
+    .module-feature-group__stats {
+      display: inline-flex;
+      gap: 0.45rem;
+      font-size: 0.72rem;
+      color: var(--color-muted);
+      flex-wrap: wrap;
+    }
+
+    .module-feature-group__right {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      flex-shrink: 0;
+    }
+
+    .module-feature-group__toggle-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      color: var(--color-text);
+      white-space: nowrap;
+    }
+
+    .module-feature-group__chevron {
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      transform: rotate(0deg);
+      transition: transform 0.18s ease;
+    }
+
+    .module-feature-group__chevron.is-open {
+      transform: rotate(180deg);
+    }
+
+    .module-feature-group__body {
+      border-top: 1px solid rgba(148, 163, 184, 0.24);
+      padding: 0.72rem 0.88rem 0.8rem;
+    }
+
+    .module-feature-group__list {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .module-feature-item {
+      display: grid;
+      gap: 0.24rem;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 0.72rem;
+      padding: 0.5rem 0.6rem;
+      background: rgba(148, 163, 184, 0.05);
+    }
+
+    .module-feature-item__top {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.52rem;
+    }
+
+    .module-feature-item__label {
+      font-size: 0.78rem;
+      color: var(--color-text);
+      font-weight: 500;
+      line-height: 1.25;
+    }
+
+    .module-feature-item__description {
+      font-size: 0.71rem;
+      color: var(--color-muted);
+      padding-left: 1.5rem;
+      line-height: 1.3;
+    }
+
+    .module-feature-group__more {
+      margin-top: 0.72rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .module-feature-catalog {
+        padding: 0.78rem;
+      }
+
+      .module-feature-group__header {
+        padding: 0.7rem 0.75rem;
+      }
+
+      .module-feature-group__right {
+        gap: 0.45rem;
+      }
+    }
+  </style>
+
+  <div class="grid gap-6 sm:grid-cols-2">
+    <div>
+      {{ form_label(form.title, 'Titre', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+      {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Ex : Ressources humaines'}}) }}
+      {{ form_errors(form.title) }}
+    </div>
+    <div>
+      {{ form_label(form.tag, 'Tag', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+      {{ form_widget(form.tag, {'attr': {'class': 'form-control', 'placeholder': 'Ex : RH'}}) }}
+      {{ form_errors(form.tag) }}
+    </div>
+  </div>
+
+  <div>
+    {{ form_label(form.description, 'Description', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3, 'placeholder': 'Decrivez brievement ce module...'}}) }}
+    {{ form_errors(form.description) }}
+  </div>
+
+  <div>
+    {{ form_label(form.accessRoles, 'Roles autorises', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+    {{ form_widget(form.accessRoles) }}
+    <p class="mt-1 text-xs text-muted">{{ form_help(form.accessRoles) }}</p>
+    {{ form_errors(form.accessRoles) }}
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-text mb-1.5">Catalogue des fonctionnalites</label>
+
+    <div
+      class="module-feature-catalog"
+      data-module-feature-catalog
+      data-selected-ids="{{ selectedIdsCsv }}"
+      data-total-features="{{ featureCatalogTotal|default(0) }}"
+    >
+      <div class="module-feature-toolbar">
+        <div class="module-feature-search-wrap">
+          <input
+            type="search"
+            class="form-control"
+            data-feature-search
+            placeholder="Rechercher une fonctionnalite ou une description"
+            autocomplete="off"
+          >
+          <button type="button" class="btn" data-feature-search-clear hidden>Effacer</button>
+        </div>
+        <div class="flex items-center justify-between gap-3 text-xs text-muted flex-wrap">
+          <p data-feature-search-meta>
+            {{ featureCatalogTotal|default(0) }} fonctionnalites dans {{ featureCatalogGroups|default([])|length }} groupes.
+          </p>
+          <p>
+            Selectionnees :
+            <span data-selected-count class="font-semibold text-text">{{ selectedIds|length }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div data-selected-inputs>
+        {% for featureId in selectedIds %}
+          <input type="hidden" name="selectedFeatures[]" value="{{ featureId }}">
+        {% endfor %}
+      </div>
+
+      {% if featureCatalogGroups|default([])|length > 0 %}
+        <div class="module-feature-groups" data-feature-groups>
+          {% for group in featureCatalogGroups %}
+            <section class="module-feature-group" data-feature-group>
+              <button type="button" class="module-feature-group__header" data-group-header aria-expanded="false">
+                <div class="module-feature-group__title-wrap">
+                  <span class="module-feature-group__title">{{ group.name }}</span>
+                  <span class="module-feature-group__stats">
+                    <span data-group-selected-count>0 / {{ group.features|length }}</span>
+                    <span data-group-match-count></span>
+                  </span>
+                </div>
+
+                <div class="module-feature-group__right">
+                  <label class="module-feature-group__toggle-all">
+                    <input type="checkbox" data-group-toggle>
+                    <span>Tout</span>
+                  </label>
+                  <span class="module-feature-group__chevron" data-group-chevron aria-hidden="true">▼</span>
+                </div>
+              </button>
+
+              <div class="module-feature-group__body" data-group-body hidden>
+                <div class="module-feature-group__list" data-group-feature-list></div>
+                <p class="text-xs text-muted" data-group-empty hidden>Aucun resultat pour ce groupe.</p>
+                <div class="module-feature-group__more" data-group-load-more-wrap hidden>
+                  <button type="button" class="btn" data-group-load-more>Afficher plus</button>
+                </div>
+              </div>
+
+              <script type="application/json" data-group-data>{{ group.features|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}</script>
+            </section>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-sm text-muted">Aucune fonctionnalite disponible dans le catalogue.</p>
+      {% endif %}
+    </div>
+
+    <p class="mt-2 text-xs text-muted">
+      Seules les fonctionnalites selectionnees seront accessibles dans ce module.
+    </p>
+  </div>
+
+  <div class="flex items-center gap-3">
+    {{ form_widget(form.isAvailable, {'attr': {'class': 'h-4 w-4 rounded border-border'}}) }}
+    {{ form_label(form.isAvailable, 'Module disponible', {'label_attr': {'class': 'text-sm font-medium text-text cursor-pointer'}}) }}
+    {{ form_errors(form.isAvailable) }}
+  </div>
+
+  <div class="flex items-center gap-4 pt-2">
+    <button type="submit" class="btn btn-primary">
+      {{ button_label|default('Enregistrer') }}
+    </button>
+    {% if hide_cancel|default(false) != true %}
+      <a href="{{ cancel_path|default(path('app_module_index')) }}" class="text-sm text-muted hover:text-text transition">
+        {{ cancel_label|default('Annuler') }}
+      </a>
+    {% endif %}
+  </div>
+
+{{ form_end(form) }}
+
+<script>
+  (function () {
+    const CATALOG_SELECTOR = '[data-module-feature-catalog]';
+    const DEFAULT_CHUNK_SIZE = 80;
+    const SEARCH_CHUNK_SIZE = 180;
+
+    const normalize = (value) => (value || '').toString().trim().toLowerCase();
+
+    const escapeHtml = (value) => (value || '')
+      .toString()
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+
+    const parseCsvIds = (value) => (value || '')
+      .split(',')
+      .map((raw) => raw.trim())
+      .filter((raw) => /^\d+$/.test(raw));
+
+    const renderFeatureItem = (feature, checked) => {
+      const description = feature.description !== ''
+        ? `<p class="module-feature-item__description">${escapeHtml(feature.description)}</p>`
+        : '';
+
+      return `
+        <label class="module-feature-item">
+          <span class="module-feature-item__top">
+            <input type="checkbox" data-feature-id="${feature.id}" ${checked ? 'checked' : ''}>
+            <span class="module-feature-item__label">${escapeHtml(feature.label)}</span>
+          </span>
+          ${description}
+        </label>
+      `;
+    };
+
+    const initCatalog = (catalogElement) => {
+      if (!catalogElement || catalogElement.dataset.initialized === '1') {
+        return;
+      }
+      catalogElement.dataset.initialized = '1';
+
+      const selectedInputsContainer = catalogElement.querySelector('[data-selected-inputs]');
+      const selectedCountElement = catalogElement.querySelector('[data-selected-count]');
+      const searchInput = catalogElement.querySelector('[data-feature-search]');
+      const clearSearchButton = catalogElement.querySelector('[data-feature-search-clear]');
+      const searchMeta = catalogElement.querySelector('[data-feature-search-meta]');
+      const selectedIds = new Set(parseCsvIds(catalogElement.dataset.selectedIds));
+      const totalFeatures = Number.parseInt(catalogElement.dataset.totalFeatures || '0', 10) || 0;
+      const groups = [];
+      let searchQuery = '';
+      let searchTimer = null;
+
+      const groupElements = Array.from(catalogElement.querySelectorAll('[data-feature-group]'));
+      groupElements.forEach((groupElement) => {
+        const rawData = groupElement.querySelector('[data-group-data]')?.textContent || '[]';
+        let parsedFeatures = [];
+
+        try {
+          parsedFeatures = JSON.parse(rawData);
+        } catch (error) {
+          parsedFeatures = [];
+        }
+
+        const features = parsedFeatures
+          .map((feature) => {
+            const id = String(Number.parseInt(feature.id, 10));
+            const label = (feature.label || '').toString().trim();
+            const description = (feature.description || '').toString().trim();
+
+            return {
+              id,
+              label,
+              description,
+              searchIndex: normalize(`${label} ${description}`),
+            };
+          })
+          .filter((feature) => /^\d+$/.test(feature.id));
+
+        groups.push({
+          element: groupElement,
+          header: groupElement.querySelector('[data-group-header]'),
+          body: groupElement.querySelector('[data-group-body]'),
+          list: groupElement.querySelector('[data-group-feature-list]'),
+          empty: groupElement.querySelector('[data-group-empty]'),
+          loadMoreWrap: groupElement.querySelector('[data-group-load-more-wrap]'),
+          loadMoreButton: groupElement.querySelector('[data-group-load-more]'),
+          toggleAll: groupElement.querySelector('[data-group-toggle]'),
+          selectedCount: groupElement.querySelector('[data-group-selected-count]'),
+          matchCount: groupElement.querySelector('[data-group-match-count]'),
+          chevron: groupElement.querySelector('[data-group-chevron]'),
+          features,
+          open: false,
+          renderLimit: DEFAULT_CHUNK_SIZE,
+          filteredCount: features.length,
+        });
+      });
+
+      const knownFeatureIds = new Set();
+      groups.forEach((group) => {
+        group.features.forEach((feature) => knownFeatureIds.add(feature.id));
+      });
+      Array.from(selectedIds).forEach((selectedId) => {
+        if (!knownFeatureIds.has(selectedId)) {
+          selectedIds.delete(selectedId);
+        }
+      });
+
+      const syncHiddenInputs = () => {
+        if (!selectedInputsContainer) {
+          return;
+        }
+
+        const sortedIds = Array.from(selectedIds).sort((a, b) => Number(a) - Number(b));
+        selectedInputsContainer.innerHTML = sortedIds
+          .map((featureId) => `<input type="hidden" name="selectedFeatures[]" value="${featureId}">`)
+          .join('');
+
+        if (selectedCountElement) {
+          selectedCountElement.textContent = String(sortedIds.length);
+        }
+      };
+
+      const getFilteredFeatures = (group) => {
+        if (searchQuery === '') {
+          return group.features;
+        }
+
+        return group.features.filter((feature) => feature.searchIndex.includes(searchQuery));
+      };
+
+      const updateGroupToggleState = (group) => {
+        const total = group.features.length;
+        const selected = group.features.reduce(
+          (count, feature) => count + (selectedIds.has(feature.id) ? 1 : 0),
+          0
+        );
+
+        if (group.selectedCount) {
+          group.selectedCount.textContent = `${selected} / ${total}`;
+        }
+
+        if (group.toggleAll) {
+          group.toggleAll.indeterminate = selected > 0 && selected < total;
+          group.toggleAll.checked = total > 0 && selected === total;
+        }
+      };
+
+      const setGroupOpen = (group, shouldOpen) => {
+        group.open = shouldOpen;
+        if (group.body) {
+          group.body.hidden = !shouldOpen;
+        }
+        if (group.header) {
+          group.header.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+        }
+        if (group.chevron) {
+          group.chevron.classList.toggle('is-open', shouldOpen);
+        }
+      };
+
+      const renderGroup = (group, resetLimit) => {
+        if (resetLimit) {
+          group.renderLimit = searchQuery === '' ? DEFAULT_CHUNK_SIZE : SEARCH_CHUNK_SIZE;
+        }
+
+        const filtered = getFilteredFeatures(group);
+        group.filteredCount = filtered.length;
+
+        if (searchQuery !== '' && filtered.length === 0) {
+          group.element.hidden = true;
+        } else {
+          group.element.hidden = false;
+        }
+
+        if (group.matchCount) {
+          group.matchCount.textContent = searchQuery === '' ? '' : `${filtered.length} trouves`;
+        }
+
+        if (!group.open) {
+          return;
+        }
+
+        const maxItems = Math.min(group.renderLimit, filtered.length);
+        if (filtered.length === 0) {
+          if (group.list) {
+            group.list.innerHTML = '';
+          }
+          if (group.empty) {
+            group.empty.hidden = false;
+          }
+          if (group.loadMoreWrap) {
+            group.loadMoreWrap.hidden = true;
+          }
+          return;
+        }
+
+        if (group.list) {
+          group.list.innerHTML = filtered
+            .slice(0, maxItems)
+            .map((feature) => renderFeatureItem(feature, selectedIds.has(feature.id)))
+            .join('');
+        }
+        if (group.empty) {
+          group.empty.hidden = true;
+        }
+        if (group.loadMoreWrap) {
+          group.loadMoreWrap.hidden = maxItems >= filtered.length;
+        }
+      };
+
+      const updateSearchMeta = () => {
+        if (!searchMeta) {
+          return;
+        }
+
+        if (searchQuery === '') {
+          searchMeta.textContent = `${totalFeatures} fonctionnalites dans ${groups.length} groupes.`;
+          return;
+        }
+
+        const visibleGroups = groups.filter((group) => !group.element.hidden).length;
+        const visibleFeatures = groups.reduce((total, group) => total + group.filteredCount, 0);
+        searchMeta.textContent = `${visibleFeatures} fonctionnalites trouvees dans ${visibleGroups} groupes.`;
+      };
+
+      const refreshAll = (renderOpenGroups) => {
+        syncHiddenInputs();
+        groups.forEach((group) => updateGroupToggleState(group));
+
+        if (renderOpenGroups) {
+          groups.forEach((group) => {
+            if (group.open) {
+              renderGroup(group, false);
+            }
+          });
+        }
+      };
+
+      const applySearch = () => {
+        searchQuery = normalize(searchInput ? searchInput.value : '');
+
+        if (clearSearchButton) {
+          clearSearchButton.hidden = searchQuery === '';
+        }
+
+        groups.forEach((group) => renderGroup(group, true));
+        updateSearchMeta();
+      };
+
+      groups.forEach((group) => {
+        if (group.header) {
+          group.header.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target instanceof HTMLElement && target.closest('[data-group-toggle]')) {
+              return;
+            }
+
+            setGroupOpen(group, !group.open);
+            if (group.open) {
+              renderGroup(group, true);
+            }
+          });
+        }
+
+        if (group.toggleAll) {
+          group.toggleAll.addEventListener('click', (event) => {
+            event.stopPropagation();
+          });
+
+          group.toggleAll.addEventListener('change', () => {
+            group.features.forEach((feature) => {
+              if (group.toggleAll.checked) {
+                selectedIds.add(feature.id);
+              } else {
+                selectedIds.delete(feature.id);
+              }
+            });
+
+            refreshAll(true);
+          });
+        }
+
+        if (group.list) {
+          group.list.addEventListener('change', (event) => {
+            const input = event.target;
+            if (!(input instanceof HTMLInputElement) || input.type !== 'checkbox') {
+              return;
+            }
+
+            const featureId = input.dataset.featureId;
+            if (!featureId || !/^\d+$/.test(featureId)) {
+              return;
+            }
+
+            if (input.checked) {
+              selectedIds.add(featureId);
+            } else {
+              selectedIds.delete(featureId);
+            }
+
+            refreshAll(false);
+          });
+        }
+
+        if (group.loadMoreButton) {
+          group.loadMoreButton.addEventListener('click', () => {
+            group.renderLimit += searchQuery === '' ? DEFAULT_CHUNK_SIZE : SEARCH_CHUNK_SIZE;
+            renderGroup(group, false);
+          });
+        }
+      });
+
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          if (searchTimer !== null) {
+            window.clearTimeout(searchTimer);
+          }
+
+          searchTimer = window.setTimeout(applySearch, 120);
+        });
+      }
+
+      if (clearSearchButton && searchInput) {
+        clearSearchButton.addEventListener('click', () => {
+          searchInput.value = '';
+          applySearch();
+          searchInput.focus();
+        });
+      }
+
+      syncHiddenInputs();
+      groups.forEach((group) => {
+        updateGroupToggleState(group);
+        setGroupOpen(group, false);
+      });
+      applySearch();
+    };
+
+    const boot = () => {
+      document.querySelectorAll(CATALOG_SELECTOR).forEach((catalogElement) => initCatalog(catalogElement));
+    };
+
+    document.addEventListener('DOMContentLoaded', boot);
+    document.addEventListener('turbo:load', boot);
+  })();
+</script>

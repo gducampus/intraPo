@@ -1,0 +1,21 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Modifier fichier - Administration - Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Modifier fichier</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-text">Modifier "{{ item.title }}"</h1>
+    <p class="text-muted mt-1">Dossier: <span class="font-semibold text-text">{{ item.folder ? item.folder.name : 'N/A' }}</span></p>
+  </div>
+
+  <div class="card-elevated p-6">
+    {{ include('admin/document_library/_item_form.html.twig', {button_label: 'Enregistrer les modifications'}) }}
+  </div>
+{% endblock %}

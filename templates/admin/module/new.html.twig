@@ -1,0 +1,28 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Nouveau module - Administration - Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Nouveau module</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex items-center gap-2 text-sm text-muted mb-8">
+    <a href="{{ path('app_module_index') }}" class="hover:text-text transition">Modules</a>
+    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    <span class="text-text">Nouveau</span>
+  </div>
+
+  <div class="max-w-6xl">
+    <div class="card-elevated p-8">
+      <h2 class="text-lg font-semibold text-text mb-1">Creer un module</h2>
+      <p class="text-sm text-muted mb-8">
+        Renseignez les informations du module puis selectionnez les fonctionnalites autorisees.
+      </p>
+      {{ include('admin/module/_form.html.twig') }}
+    </div>
+  </div>
+{% endblock %}

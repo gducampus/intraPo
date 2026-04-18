@@ -1,0 +1,93 @@
+<div class="space-y-4">
+  {% for folder in folders %}
+    <div class="rounded-xl border border-border/60 bg-panel p-4">
+      <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="flex items-center flex-wrap gap-2">
+            <span class="text-sm font-semibold text-text">{{ folder.name }}</span>
+            {% if folder.isSecured %}
+              <span class="badge badge-warning">Securise</span>
+            {% else %}
+              <span class="badge badge-info">Public</span>
+            {% endif %}
+            {% if folder.accessRoles is not empty %}
+              {% for role in folder.accessRoles %}
+                <span class="badge">{{ role|replace({'ROLE_': ''})|replace({'_': ' '})|lower|title }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+          {% if folder.description %}
+            <p class="text-xs text-muted mt-1">{{ folder.description }}</p>
+          {% endif %}
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <a href="{{ path('app_document_admin_folder_new', {'parent': folder.id}) }}" class="btn btn-secondary">
+            <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
+            <span>Sous-dossier</span>
+          </a>
+          <a href="{{ path('app_document_admin_item_new', {'id': folder.id}) }}" class="btn btn-secondary">
+            <i data-lucide="file-plus-2" class="w-3.5 h-3.5"></i>
+            <span>Ajouter un fichier</span>
+          </a>
+          <a href="{{ path('app_document_admin_folder_edit', {'id': folder.id}) }}" class="btn btn-secondary">
+            <span>Modifier</span>
+          </a>
+          <form method="post"
+                action="{{ path('app_document_admin_folder_delete', {'id': folder.id}) }}"
+                onsubmit="return confirm('Supprimer ce dossier et son contenu ?');"
+                class="inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_folder' ~ folder.id) }}">
+            <button type="submit" class="btn btn-secondary text-red-400">
+              <span>Supprimer</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {% if folder.items is not empty %}
+        <div class="mt-4 rounded-lg border border-border/60 bg-panel-2 p-3">
+          <p class="text-[0.68rem] uppercase tracking-widest text-muted mb-2">Fichiers du dossier</p>
+          <div class="space-y-2">
+            {% for item in folder.items %}
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 rounded-lg border border-border/50 px-3 py-2">
+                <div class="min-w-0">
+                  <p class="text-sm text-text font-medium truncate">{{ item.title }}</p>
+                  <p class="text-xs text-muted">
+                    {% if item.itemType == constant('App\\Entity\\DocumentItem::TYPE_VIDEO_LINK') %}
+                      Video YouTube/Vimeo
+                    {% elseif item.itemType == constant('App\\Entity\\DocumentItem::TYPE_UPLOADED_FILE') %}
+                      {{ item.originalFilename ?: 'Fichier importe' }}
+                    {% else %}
+                      Lien externe
+                    {% endif %}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <a href="{{ path('app_document_admin_item_edit', {'id': item.id}) }}"
+                     class="text-xs font-medium text-indigo-400 hover:text-indigo-300">Modifier</a>
+                  <form method="post"
+                        action="{{ path('app_document_admin_item_delete', {'id': item.id}) }}"
+                        onsubmit="return confirm('Supprimer ce fichier ?');"
+                        class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_item' ~ item.id) }}">
+                    <button type="submit" class="text-xs font-medium text-red-400 hover:text-red-300">Supprimer</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if folder.children is not empty %}
+        <div class="mt-4 pl-3 md:pl-5 border-l border-border/60">
+          {{ include('admin/document_library/_folder_tree.html.twig', {
+            folders: folder.children,
+            level: level + 1
+          }) }}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>

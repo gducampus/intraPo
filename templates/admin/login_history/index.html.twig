@@ -1,0 +1,58 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Historique des connexions - Administration - Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Historique des connexions</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="mb-8">
+    <h1 class="text-2xl md:text-3xl font-bold text-text mb-2">Historique des connexions</h1>
+    <p class="text-muted">Dernieres tentatives de connexion (reussies et echouees).</p>
+  </div>
+
+  <div class="card-elevated">
+    <div class="overflow-x-auto">
+      <table class="data-table admin-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Statut</th>
+            <th>Email</th>
+            <th>Compte</th>
+            <th>IP</th>
+            <th>Detail</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for history in histories %}
+            <tr>
+              <td class="text-xs text-muted">{{ history.loggedAt ? history.loggedAt|date('d/m/Y H:i:s') : '-' }}</td>
+              <td>
+                {% if history.succeeded %}
+                  <span class="badge badge-success">Succes</span>
+                {% else %}
+                  <span class="badge badge-warning">Echec</span>
+                {% endif %}
+              </td>
+              <td class="font-semibold text-text">{{ history.email }}</td>
+              <td class="text-xs text-muted">{{ history.user ? history.user.email : '-' }}</td>
+              <td class="text-xs text-muted">{{ history.ipAddress ?: '-' }}</td>
+              <td class="text-xs text-muted">{{ history.failureReason ?: '-' }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-12">
+                Aucun historique de connexion disponible.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

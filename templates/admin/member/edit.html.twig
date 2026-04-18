@@ -1,0 +1,35 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit member — Administration — Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Edit member</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex items-center gap-2 text-sm text-muted mb-8">
+    <a href="{{ path('app_member_index') }}" class="hover:text-text transition">Members</a>
+    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    <span class="text-text">{{ member.lastNameOrCompany ?: 'Member' }}</span>
+  </div>
+
+  <div class="max-w-5xl space-y-6">
+    <div class="card-elevated p-8">
+      <h2 class="text-lg font-semibold text-text mb-1">Update member</h2>
+      <p class="text-sm text-muted mb-8">Modifiez les informations du membre.</p>
+      {{ include('admin/member/_form.html.twig', {'button_label': 'Save changes'}) }}
+    </div>
+
+    <div class="card-elevated p-6" style="border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.04);">
+      <h3 class="text-sm font-semibold text-red-400">Danger zone</h3>
+      <p class="mt-1 text-sm text-muted">La suppression est irreversible.</p>
+      <div class="mt-4">
+        {{ include('admin/member/_delete_form.html.twig') }}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

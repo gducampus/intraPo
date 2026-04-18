@@ -1,0 +1,45 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Modifier {{ feature.label }} — Administration — Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Catalogue</p>
+    <h1 class="text-sm font-semibold text-text">Modifier une fonctionnalité</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex items-center gap-2 text-sm text-muted mb-8">
+    <a href="{{ path('app_feature_index') }}" class="hover:text-text transition">Catalogue</a>
+    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    <span class="text-text">{{ feature.label }}</span>
+  </div>
+
+  <div class="max-w-2xl space-y-6">
+
+    <div class="card-elevated p-8">
+      <h2 class="text-lg font-semibold text-text mb-1">Modifier la fonctionnalité</h2>
+      <p class="text-sm text-muted mb-8">
+        Modification de <span class="font-medium text-text">{{ feature.label }}</span>.
+      </p>
+      {{ include('admin/application_feature/_form.html.twig', {'button_label': 'Enregistrer les modifications'}) }}
+    </div>
+
+    <div class="card-elevated p-6" style="border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.04);">
+      <h3 class="text-sm font-semibold text-red-400">Zone dangereuse</h3>
+      <p class="mt-1 text-sm text-muted">La suppression retire cette fonctionnalité du catalogue et de tous les modules auxquels elle est assignée.</p>
+      <div class="mt-4">
+        <form method="post" action="{{ path('app_feature_delete', {'id': feature.id}) }}"
+              onsubmit="return confirm('Supprimer « {{ feature.label }} » du catalogue ?');">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ feature.id) }}">
+          <button type="submit" class="btn" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3);">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <span>Supprimer du catalogue</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

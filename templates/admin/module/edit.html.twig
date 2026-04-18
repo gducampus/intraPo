@@ -1,0 +1,39 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Modifier {{ module.title }} - Administration - Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Modifier un module</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex items-center gap-2 text-sm text-muted mb-8">
+    <a href="{{ path('app_module_index') }}" class="hover:text-text transition">Modules</a>
+    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    <span class="text-text">{{ module.title }}</span>
+  </div>
+
+  <div class="max-w-6xl space-y-6">
+    <div class="card-elevated p-8">
+      <h2 class="text-lg font-semibold text-text mb-1">Informations du module</h2>
+      <p class="text-sm text-muted mb-8">
+        Modifiez les informations de <span class="font-medium text-text">{{ module.title }}</span>
+        et mettez a jour les fonctionnalites autorisees.
+      </p>
+      {{ include('admin/module/_form.html.twig', {'button_label': 'Enregistrer les modifications'}) }}
+    </div>
+
+    <div class="card-elevated p-6" style="border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.04);">
+      <h3 class="text-sm font-semibold text-red-400">Zone dangereuse</h3>
+      <p class="mt-1 text-sm text-muted">
+        La suppression est irreversible et retire aussi toutes les fonctionnalites assignees.
+      </p>
+      <div class="mt-4">
+        {{ include('admin/module/_delete_form.html.twig') }}
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Liste des membres - Administration - Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Liste des membres</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <style>
+    .member-list {
+      display: grid;
+      background: rgba(148, 163, 184, 0.03);
+    }
+
+    .member-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.72rem 0.9rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .member-row:last-child {
+      border-bottom: 0;
+    }
+
+    .member-main {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .member-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--color-text);
+      line-height: 1.25;
+      margin-bottom: 0.08rem;
+    }
+
+    .member-address {
+      font-size: 0.9rem;
+      color: var(--color-muted);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .member-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+
+    .member-btn {
+      min-height: 2.32rem;
+      border-radius: 0.72rem;
+      padding: 0.45rem 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      text-decoration: none;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      transition: all 0.18s ease;
+    }
+
+    .member-btn-edit {
+      background: #7a9834;
+      color: #fff;
+      border-color: #7a9834;
+    }
+
+    .member-btn-edit:hover {
+      background: #6a872c;
+      border-color: #6a872c;
+      color: #fff;
+    }
+
+    .member-btn-message {
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--color-text);
+      border-color: rgba(148, 163, 184, 0.42);
+    }
+
+    .member-btn-message:hover {
+      background: rgba(255, 255, 255, 0.94);
+      border-color: rgba(148, 163, 184, 0.64);
+      color: var(--color-text);
+    }
+
+    .member-btn-message.is-disabled {
+      opacity: 0.46;
+      pointer-events: none;
+    }
+
+    .member-dots {
+      width: 2.32rem;
+      height: 2.32rem;
+      border-radius: 0.72rem;
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--color-text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 1024px) {
+      .member-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .member-address {
+        white-space: normal;
+      }
+    }
+  </style>
+
+  <div class="flex flex-col xl:flex-row xl:items-start justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-text mb-2">Liste des membres</h1>
+      <p class="text-muted">Gestion des Paroissiens et import Excel au format Prodon.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="{{ path('app_member_map') }}"
+         class="btn btn-secondary"
+         style="min-height: 1.9rem; font-size: 0.72rem; padding: 0.34rem 0.56rem;">
+        <i data-lucide="map-pinned" class="w-3.5 h-3.5"></i>
+        <span>Carte</span>
+      </a>
+      <a href="{{ asset('examples/export-prodon-exemple.xlsx') }}"
+         download
+         class="btn btn-secondary"
+         style="min-height: 1.9rem; font-size: 0.72rem; padding: 0.34rem 0.56rem;">
+        <i data-lucide="file-down" class="w-3.5 h-3.5"></i>
+        <span>Fichier exemple</span>
+      </a>
+      <a href="{{ path('app_member_new') }}" class="btn btn-primary">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span>Nouveau membre</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="grid gap-6 mb-7">
+    <div class="card-elevated p-6">
+      <h2 class="text-base font-semibold text-text mb-2">Import liste des membres (.xlsx)</h2>
+      <p class="text-sm text-muted mb-4">Utilise le format exact du fichier exporte depuis Prodon.</p>
+      {{ form_start(importForm, {'attr': {'class': 'flex flex-col md:flex-row md:items-start gap-3'}}) }}
+        <div class="flex-1">
+          {{ form_widget(importForm.file, {'attr': {'class': 'form-control'}}) }}
+          {{ form_errors(importForm.file) }}
+        </div>
+        <button type="submit" class="btn btn-primary md:mt-[2px] shrink-0">
+          <i data-lucide="upload" class="w-4 h-4"></i>
+          <span>Import XLSX</span>
+        </button>
+      {{ form_end(importForm) }}
+    </div>
+  </div>
+
+  <div class="card-elevated">
+    <div class="member-list">
+      {% for member in members %}
+        {% set firstName = (member.firstNameOrService ?? '')|trim %}
+        {% set lastName = (member.lastNameOrCompany ?? '')|trim %}
+        {% set displayName = ((lastName|upper) ~ (firstName != '' ? ' ' ~ firstName : ''))|trim %}
+        {% if displayName == '' %}
+          {% set displayName = 'Membre sans nom' %}
+        {% endif %}
+
+        {% set addressParts = [] %}
+        {% if member.address %}{% set addressParts = addressParts|merge([member.address|trim]) %}{% endif %}
+        {% if member.postalCode %}{% set addressParts = addressParts|merge([member.postalCode|trim]) %}{% endif %}
+        {% if member.city %}{% set addressParts = addressParts|merge([member.city|trim|upper]) %}{% endif %}
+        {% set addressLine = addressParts|join(', ') %}
+        {% if addressLine == '' %}
+          {% set addressLine = 'Adresse non renseignee' %}
+        {% endif %}
+
+        {% set rawPhone = (member.mobilePhone ?: member.homePhone ?: '')|trim %}
+        {% set smsPhone = rawPhone|replace({' ': '', '-': '', '.': '', '(': '', ')': '', '/': ''}) %}
+        {% if smsPhone starts with '00' %}
+          {% set smsPhone = '+' ~ smsPhone|slice(2) %}
+        {% endif %}
+
+        <article class="member-row">
+          <div class="member-main">
+            <p class="member-name">{{ displayName }}</p>
+            <p class="member-address">{{ addressLine }}</p>
+          </div>
+
+          <div class="member-actions">
+            <a href="{{ path('app_member_edit', {'id': member.id}) }}" class="member-btn member-btn-edit">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+              <span>Modifier</span>
+            </a>
+
+            {% if smsPhone != '' %}
+              <a href="sms:{{ smsPhone }}" class="member-btn member-btn-message">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+                <span>Ecrire un message</span>
+              </a>
+            {% else %}
+              <span class="member-btn member-btn-message is-disabled">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+                <span>Ecrire un message</span>
+              </span>
+            {% endif %}
+
+            <button type="button" class="member-dots" aria-label="Plus d'actions">
+              <i data-lucide="ellipsis" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </article>
+      {% else %}
+        <div class="py-12 text-center text-muted">Aucun membre pour le moment.</div>
+      {% endfor %}
+    </div>
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 px-4 py-3 border-t border-border">
+      <p class="text-xs text-muted">
+        {% if totalMembers > 0 %}
+          Affichage {{ startItem }}-{{ endItem }} sur {{ totalMembers }} membres
+        {% else %}
+          Aucun membre a afficher
+        {% endif %}
+      </p>
+
+      {% if totalPages > 1 %}
+        {% set startPage = max(1, page - 2) %}
+        {% set endPage = min(totalPages, page + 2) %}
+
+        <nav class="flex items-center gap-1" aria-label="Pagination membres">
+          <a href="{{ path('app_member_index', {'page': 1}) }}"
+             class="btn btn-secondary {{ page == 1 ? 'pointer-events-none opacity-40' : '' }}"
+             style="min-height: 1.9rem; font-size: 0.72rem; padding: 0.3rem 0.48rem;">
+            << First
+          </a>
+          <a href="{{ path('app_member_index', {'page': page - 1}) }}"
+             class="btn btn-secondary {{ page == 1 ? 'pointer-events-none opacity-40' : '' }}"
+             style="min-height: 1.9rem; font-size: 0.72rem; padding: 0.3rem 0.48rem;">
+            < Prev
+          </a>
+
+          {% for p in startPage..endPage %}
+            <a href="{{ path('app_member_index', {'page': p}) }}"
+               class="btn {{ p == page ? 'btn-primary' : 'btn-secondary' }}"
+               style="min-height: 1.9rem; font-size: 0.72rem; padding: 0.3rem 0.48rem; min-width: 2rem; text-align: center;">
+              {{ p }}
+            </a>
+          {% endfor %}
+
+          <a href="{{ path('app_member_index', {'page': page + 1}) }}"
+             class="btn btn-secondary {{ page == totalPages ? 'pointer-events-none opacity-40' : '' }}"
+             style="min-height: 1.9rem; font-size: 0.72rem; padding: 0.3rem 0.48rem;">
+            Next >
+          </a>
+          <a href="{{ path('app_member_index', {'page': totalPages}) }}"
+             class="btn btn-secondary {{ page == totalPages ? 'pointer-events-none opacity-40' : '' }}"
+             style="min-height: 1.9rem; font-size: 0.72rem; padding: 0.3rem 0.48rem;">
+            Last >>
+          </a>
+        </nav>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

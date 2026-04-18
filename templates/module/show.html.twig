@@ -1,0 +1,435 @@
+{% extends 'module/base.html.twig' %}
+
+{% block title %}{{ module.title }} - Intranet PO{% endblock %}
+
+{% block stylesheets %}
+  {% if canManageModule %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+  {% endif %}
+  <style>
+    .module-hero {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.9fr);
+      margin-bottom: 2rem;
+    }
+
+    .module-summary-card,
+    .module-admin-card,
+    .module-access-card {
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 1.25rem;
+      background: rgba(15, 23, 42, 0.42);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 22px 50px -36px rgba(15, 23, 42, 0.8);
+    }
+
+    .module-summary-card {
+      padding: 1.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .module-summary-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -70px -90px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .module-kpis {
+      display: grid;
+      gap: 0.9rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 1.25rem;
+    }
+
+    .module-kpi {
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 1rem;
+      background: rgba(15, 23, 42, 0.32);
+      padding: 0.9rem 1rem;
+    }
+
+    .module-kpi__label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--color-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .module-kpi__value {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .module-feature-grid {
+      display: grid;
+      gap: 1.1rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .module-feature-card {
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 1.1rem;
+      background: rgba(15, 23, 42, 0.38);
+      padding: 1.25rem;
+      text-decoration: none;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      display: block;
+    }
+
+    .module-feature-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(99, 102, 241, 0.42);
+      box-shadow: 0 20px 36px -30px rgba(99, 102, 241, 0.8);
+    }
+
+    .module-feature-card.is-static:hover {
+      transform: none;
+      border-color: rgba(148, 163, 184, 0.18);
+      box-shadow: none;
+    }
+
+    .module-admin-card,
+    .module-access-card {
+      padding: 1.25rem;
+    }
+
+    .module-admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .module-role-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.9rem;
+    }
+
+    .module-role-chip {
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+      font-size: 0.74rem;
+      border: 1px solid rgba(99, 102, 241, 0.28);
+      background: rgba(99, 102, 241, 0.12);
+      color: #c7d2fe;
+    }
+
+    .module-management-shell {
+      margin-top: 2rem;
+      display: grid;
+      gap: 1.25rem;
+      grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.85fr);
+      align-items: start;
+    }
+
+    .module-management-main,
+    .module-management-side {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .module-management-form {
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 1.25rem;
+      background: rgba(15, 23, 42, 0.42);
+      padding: 1.6rem;
+      box-shadow: 0 22px 50px -36px rgba(15, 23, 42, 0.8);
+    }
+
+    .module-danger-zone {
+      border: 1px solid rgba(239, 68, 68, 0.24);
+      border-radius: 1.25rem;
+      background: rgba(127, 29, 29, 0.16);
+      padding: 1.25rem;
+    }
+
+    .select2-container {
+      width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+      min-height: 2.85rem;
+      border-radius: 0.8rem;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: rgba(15, 23, 42, 0.55);
+      padding: 0.32rem 0.38rem;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(51, 65, 85, 0.8);
+      color: #e2e8f0;
+      border-radius: 0.55rem;
+      font-size: 0.72rem;
+      padding: 0.14rem 0.5rem;
+      margin-top: 0.2rem;
+    }
+
+    .select2-container--default .select2-search--inline .select2-search__field {
+      color: #e2e8f0;
+    }
+
+    .select2-dropdown {
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+      background: rgba(71, 85, 105, 0.75);
+      color: #fff;
+    }
+
+    @media (max-width: 1200px) {
+      .module-feature-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .module-hero,
+      .module-management-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .module-feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .module-kpis,
+      .module-feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .module-summary-card,
+      .module-management-form,
+      .module-admin-card,
+      .module-access-card,
+      .module-danger-zone {
+        padding: 1.15rem;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">{{ module.tag }}</p>
+    <h1 class="text-sm font-semibold text-text">{{ module.title }}{% if canManageModule %} · Interface unifiee{% endif %}</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <section class="module-hero">
+    <div class="module-summary-card">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="badge badge-info">{{ module.tag }}</span>
+            {% if module.isAvailable %}
+              <span class="badge badge-success">Disponible</span>
+            {% else %}
+              <span class="badge badge-danger">Indisponible</span>
+            {% endif %}
+            {% if canManageModule %}
+              <span class="badge" style="background: rgba(99,102,241,0.16); color: #c7d2fe; border: 1px solid rgba(99,102,241,0.28);">Edition admin active</span>
+            {% endif %}
+          </div>
+          <h1 class="text-2xl md:text-3xl font-bold text-text mb-2">{{ module.title }}</h1>
+          <p class="text-muted max-w-3xl">
+            {{ module.description ?: 'Module pret a l emploi avec un parcours centralise pour votre equipe.' }}
+          </p>
+        </div>
+
+        <div class="shrink-0">
+          <span class="badge badge-info">{{ moduleFeatures|length }} fonctionnalite{{ moduleFeatures|length > 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+
+      <div class="module-kpis">
+        <div class="module-kpi">
+          <span class="module-kpi__label">Fonctionnalites</span>
+          <span class="module-kpi__value">{{ moduleFeatures|length }}</span>
+        </div>
+        <div class="module-kpi">
+          <span class="module-kpi__label">Acces directs</span>
+          <span class="module-kpi__value">{{ moduleFeatureLinks|length }}</span>
+        </div>
+        <div class="module-kpi">
+          <span class="module-kpi__label">Roles attendus</span>
+          <span class="module-kpi__value">{{ moduleExpectedRoles|length }}</span>
+        </div>
+      </div>
+    </div>
+
+    {% if canManageModule %}
+      <aside class="module-admin-card">
+        <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+        <h2 class="text-lg font-semibold text-text mt-2">Gestion sur la meme interface</h2>
+        <p class="text-sm text-muted mt-2">
+          Cette page permet maintenant de consulter le module et de le configurer sans passer par un ecran d'edition separe.
+        </p>
+
+        <div class="module-admin-actions">
+          <a href="{{ path('app_module_index') }}" class="btn">
+            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+            <span>Tous les modules</span>
+          </a>
+          <a href="{{ path('app_module_new') }}" class="btn btn-primary">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Nouveau module</span>
+          </a>
+        </div>
+
+        <div class="module-role-list">
+          {% for role in moduleExpectedRoles %}
+            <span class="module-role-chip">{{ role }}</span>
+          {% else %}
+            <span class="text-sm text-muted">Aucun role calcule pour ce module.</span>
+          {% endfor %}
+        </div>
+      </aside>
+    {% else %}
+      <aside class="module-access-card">
+        <p class="text-xs font-semibold uppercase tracking-widest text-muted">Acces</p>
+        <h2 class="text-lg font-semibold text-text mt-2">Entrees disponibles</h2>
+        <p class="text-sm text-muted mt-2">
+          Ouvrez les fonctionnalites actives depuis cette vue unique du module.
+        </p>
+      </aside>
+    {% endif %}
+  </section>
+
+  {% if moduleFeatures is empty %}
+    <div class="card-elevated p-12 text-center">
+      <i data-lucide="inbox" class="w-10 h-10 text-muted mx-auto mb-4"></i>
+      <p class="text-muted text-sm">Aucune fonctionnalite disponible pour ce module.</p>
+    </div>
+  {% else %}
+    <div class="module-feature-grid">
+      {% for mf in moduleFeatures %}
+        {% set href = moduleFeatureLinks[mf.id]|default(null) %}
+        {% if href %}
+          <a href="{{ href }}"
+             class="module-feature-card group"
+             style="text-decoration: none;">
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center shrink-0">
+                <i data-lucide="{{ mf.feature.icon ?? 'zap' }}" class="w-6 h-6 text-white"></i>
+              </div>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-muted transition group-hover:text-indigo-400 group-hover:translate-x-1 mt-1"></i>
+            </div>
+            <p class="font-semibold text-text mb-2">{{ mf.feature.label }}</p>
+            {% if mf.feature.description %}
+              <p class="text-sm text-muted leading-relaxed">{{ mf.feature.description }}</p>
+            {% endif %}
+          </a>
+        {% else %}
+          <div class="module-feature-card is-static opacity-75">
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center shrink-0">
+                <i data-lucide="{{ mf.feature.icon ?? 'zap' }}" class="w-6 h-6 text-white"></i>
+              </div>
+              <span class="text-[10px] uppercase tracking-wider text-muted">action</span>
+            </div>
+            <p class="font-semibold text-text mb-2">{{ mf.feature.label }}</p>
+            <p class="text-sm text-muted leading-relaxed">
+              Fonctionnalite disponible dans les ecrans metier, sans lien direct vers une route admin.
+            </p>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if canManageModule and managementForm %}
+    <section class="module-management-shell">
+      <div class="module-management-main">
+        <div class="module-management-form">
+          <p class="text-xs font-semibold uppercase tracking-widest text-muted">Edition</p>
+          <h2 class="text-lg font-semibold text-text mt-2 mb-1">Parametres du module</h2>
+          <p class="text-sm text-muted mb-8">
+            Mettez a jour les informations du module et choisissez les fonctionnalites exposees dans cette interface.
+          </p>
+          {{ include('admin/module/_form.html.twig', {
+            form: managementForm,
+            button_label: 'Enregistrer les modifications',
+            hide_cancel: true
+          }) }}
+        </div>
+      </div>
+
+      <aside class="module-management-side">
+        <div class="module-admin-card">
+          <p class="text-xs font-semibold uppercase tracking-widest text-muted">Visibilite</p>
+          <h3 class="text-lg font-semibold text-text mt-2">Regles d'acces</h3>
+          <p class="text-sm text-muted mt-2">
+            Les roles ci-dessous donnent acces au module, en plus du statut disponible du module.
+          </p>
+          <div class="module-role-list">
+            {% for role in moduleExpectedRoles %}
+              <span class="module-role-chip">{{ role }}</span>
+            {% else %}
+              <span class="text-sm text-muted">Aucun role configure.</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="module-danger-zone">
+          <h3 class="text-sm font-semibold text-red-400">Zone dangereuse</h3>
+          <p class="mt-2 text-sm text-muted">
+            La suppression est irreversible et retire aussi toutes les fonctionnalites assignees.
+          </p>
+          <div class="mt-4">
+            {{ include('admin/module/_delete_form.html.twig') }}
+          </div>
+        </div>
+      </aside>
+    </section>
+  {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+  {% if canManageModule %}
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+      (function () {
+        const initModuleSelect2 = () => {
+          if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
+            return;
+          }
+
+          window.jQuery('.js-select2').each(function () {
+            const $element = window.jQuery(this);
+            if ($element.hasClass('select2-hidden-accessible')) {
+              return;
+            }
+
+            $element.select2({
+              width: '100%',
+              closeOnSelect: false,
+              placeholder: $element.data('placeholder') || 'Selectionner',
+            });
+          });
+        };
+
+        document.addEventListener('DOMContentLoaded', initModuleSelect2);
+        document.addEventListener('turbo:load', initModuleSelect2);
+        initModuleSelect2();
+      })();
+    </script>
+  {% endif %}
+{% endblock %}

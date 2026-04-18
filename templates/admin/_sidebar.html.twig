@@ -1,0 +1,146 @@
+﻿{% set route = app.request.attributes.get('_route') %}
+
+{% set routes_administration = [
+  'app_module_index', 'app_module_new', 'app_module_edit', 'app_module_show',
+  'app_feature_index', 'app_feature_new', 'app_feature_edit', 'app_feature_sync',
+  'app_po_user_index', 'app_po_user_new', 'app_po_user_edit',
+  'app_role_index', 'app_role_new', 'app_role_edit',
+  'app_login_history_index', 'app_trusted_device_index'
+] %}
+
+{% set routes_membres = [
+  'app_member_index', 'app_member_import', 'app_member_new', 'app_member_edit', 'app_member_map',
+  'app_secteur_index', 'app_secteur_new', 'app_secteur_edit'
+] %}
+
+{% set routes_documents = [
+  'app_document_admin_index', 'app_document_admin_folder_new', 'app_document_admin_folder_edit',
+  'app_document_admin_item_new', 'app_document_admin_item_edit'
+] %}
+
+<div class="logo-section flex items-center gap-3 px-5 pt-0 pb-2 border-b border-border">
+  <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+    <img src="{{ asset('images/logo.png') }}" alt="Intranet PO" class="w-8 h-8 object-contain brightness-0 invert" />
+  </div>
+  <div class="logo-text flex-1">
+    <p class="text-lg font-bold text-text">Intranet PO</p>
+    <p class="text-xs text-muted">Administration</p>
+  </div>
+  <button class="btn-icon w-8 h-8 lg:hidden! js-mobile-menu-toggle" aria-label="Fermer le menu">
+    <i data-lucide="x" class="w-5 h-5"></i>
+  </button>
+</div>
+
+<nav class="py-3 flex-1 overflow-y-auto">
+  <div class="nav-section-title">Sections du menu</div>
+
+  {% set membres_active = route in routes_membres %}
+  <div class="nav-item has-submenu js-submenu-toggle {{ membres_active ? 'active' : '' }}"
+       data-tooltip="Suivi pastoral"
+       data-submenu-id="submenu-membres">
+    <i data-lucide="users-round" class="w-5 h-5"></i>
+    <span class="nav-text">Suivi pastoral</span>
+    <i data-lucide="chevron-down" class="w-4 h-4 nav-arrow"></i>
+  </div>
+  <div class="submenu" id="submenu-membres">
+    <a href="{{ path('app_member_index') }}"
+       class="submenu-item {{ route in ['app_member_index','app_member_import','app_member_new','app_member_edit'] ? 'active' : '' }}">
+      <i data-lucide="user-round" class="w-3.5 h-3.5"></i>
+      <span>Liste des membres</span>
+    </a>
+    <a href="{{ path('app_member_map') }}"
+       class="submenu-item {{ route == 'app_member_map' ? 'active' : '' }}">
+      <i data-lucide="map-pinned" class="w-3.5 h-3.5"></i>
+      <span>Carte des membres</span>
+    </a>
+    <a href="{{ path('app_secteur_index') }}"
+       class="submenu-item {{ route in ['app_secteur_index','app_secteur_new','app_secteur_edit'] ? 'active' : '' }}">
+      <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+      <span>Secteurs</span>
+    </a>
+  </div>
+
+  {% set documents_active = route in routes_documents %}
+  <div class="nav-item has-submenu js-submenu-toggle {{ documents_active ? 'active' : '' }}"
+       data-tooltip="Gestions documents"
+       data-submenu-id="submenu-documents">
+    <i data-lucide="folders" class="w-5 h-5"></i>
+    <span class="nav-text">Gestions documents</span>
+    <i data-lucide="chevron-down" class="w-4 h-4 nav-arrow"></i>
+  </div>
+  <div class="submenu" id="submenu-documents">
+    <a href="{{ path('app_document_admin_index') }}"
+       class="submenu-item {{ documents_active ? 'active' : '' }}">
+      <i data-lucide="folder-open" class="w-3.5 h-3.5"></i>
+      <span>Bibliotheque documentaire</span>
+    </a>
+  </div>
+
+  {% set administration_active = route in routes_administration %}
+  <div class="nav-item has-submenu js-submenu-toggle {{ administration_active ? 'active' : '' }}"
+       data-tooltip="Administration"
+       data-submenu-id="submenu-administration">
+    <i data-lucide="settings-2" class="w-5 h-5"></i>
+    <span class="nav-text">Administration</span>
+    <i data-lucide="chevron-down" class="w-4 h-4 nav-arrow"></i>
+  </div>
+  <div class="submenu" id="submenu-administration">
+    <a href="{{ path('app_module_index') }}"
+       class="submenu-item {{ route in ['app_module_index','app_module_new','app_module_edit','app_module_show'] ? 'active' : '' }}">
+      <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+      <span>Gestion des modules</span>
+    </a>
+    <a href="{{ path('app_feature_index') }}"
+       class="submenu-item {{ route in ['app_feature_index','app_feature_new','app_feature_edit','app_feature_sync'] ? 'active' : '' }}">
+      <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+      <span>Catalogue des fonctionnalites</span>
+    </a>
+    <a href="{{ path('app_po_user_index') }}"
+       class="submenu-item {{ route in ['app_po_user_index','app_po_user_new','app_po_user_edit'] ? 'active' : '' }}">
+      <i data-lucide="users" class="w-3.5 h-3.5"></i>
+      <span>Comptes utilisateurs</span>
+    </a>
+    <a href="{{ path('app_role_index') }}"
+       class="submenu-item {{ route in ['app_role_index','app_role_new','app_role_edit'] ? 'active' : '' }}">
+      <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+      <span>Roles</span>
+    </a>
+    <a href="{{ path('app_login_history_index') }}"
+       class="submenu-item {{ route == 'app_login_history_index' ? 'active' : '' }}">
+      <i data-lucide="history" class="w-3.5 h-3.5"></i>
+      <span>Historique des connexions</span>
+    </a>
+    <a href="{{ path('app_trusted_device_index') }}"
+       class="submenu-item {{ route == 'app_trusted_device_index' ? 'active' : '' }}">
+      <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+      <span>Appareils autorises</span>
+    </a>
+  </div>
+
+  <div class="nav-section-title">Compte</div>
+  <div class="user-section p-4 mb-2 border border-border rounded-xl">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center shrink-0">
+        <span class="text-white font-semibold text-sm">
+          {{ app.user ? app.user.userIdentifier|slice(0, 2)|upper : 'PO' }}
+        </span>
+      </div>
+      <div class="user-info flex-1 min-w-0">
+        <p class="font-semibold text-sm text-text truncate">{{ app.user ? app.user.userIdentifier : '' }}</p>
+        <p class="text-xs text-muted truncate">Administrateur</p>
+      </div>
+    </div>
+  </div>
+
+  <form method="post" action="{{ path('app_logout') }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout_post') }}">
+    <button type="submit"
+            class="nav-item w-full text-left border-0 bg-transparent"
+            style="color: var(--color-red-400, #f87171);"
+            data-tooltip="Deconnexion">
+      <i data-lucide="log-out" class="w-5 h-5"></i>
+      <span class="nav-text">Deconnexion</span>
+    </button>
+  </form>
+</nav>
+

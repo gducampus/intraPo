@@ -1,0 +1,25 @@
+framework:
+    rate_limiter:
+        auth_otp_send:
+            policy: token_bucket
+            limit: 5
+            rate:
+                interval: '15 minutes'
+                amount: 5
+
+        auth_otp_send_ip:
+            policy: token_bucket
+            limit: 20
+            rate:
+                interval: '15 minutes'
+                amount: 20
+
+        auth_otp_verify:
+            policy: sliding_window
+            limit: 8
+            interval: '15 minutes'
+
+        auth_otp_verify_ip:
+            policy: sliding_window
+            limit: 30
+            interval: '15 minutes'

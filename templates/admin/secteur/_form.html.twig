@@ -1,0 +1,16 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+  <div>
+    {{ form_label(form.name, 'Nom du secteur', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+    {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Ex : Ressources humaines'}}) }}
+    {{ form_errors(form.name) }}
+  </div>
+
+  <div class="flex items-center gap-4 pt-2">
+    <button type="submit" class="btn btn-primary">
+      {{ button_label|default('Enregistrer') }}
+    </button>
+    <a href="{{ path('app_secteur_index') }}" class="text-sm text-muted hover:text-text transition">Annuler</a>
+  </div>
+
+{{ form_end(form) }}

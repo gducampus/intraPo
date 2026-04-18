@@ -1,0 +1,85 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Roles - Administration - Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Gestion des roles</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-text mb-2">Gestion des roles</h1>
+      <p class="text-muted">Creation, modification et suppression des roles applicatifs.</p>
+    </div>
+    <a href="{{ path('app_role_new') }}" class="btn btn-primary">
+      <i data-lucide="plus" class="w-4 h-4"></i>
+      <span>Nouveau role</span>
+    </a>
+  </div>
+
+  <div class="card-elevated">
+    <div class="overflow-x-auto">
+      <table class="data-table admin-table">
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Code</th>
+            <th>Comptes</th>
+            <th>Cree le</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for role in roles %}
+            {% set usage = usageCounts[role.code] ?? 0 %}
+            <tr>
+              <td>
+                <p class="font-semibold text-text">{{ role.label }}</p>
+                {% if role.description %}
+                  <p class="text-xs text-muted mt-1 max-w-lg">{{ role.description }}</p>
+                {% endif %}
+              </td>
+              <td><span class="badge badge-info">{{ role.code }}</span></td>
+              <td>
+                {% if usage > 0 %}
+                  <span class="badge badge-success">{{ usage }} compte(s)</span>
+                {% else %}
+                  <span class="text-xs text-muted">Aucun</span>
+                {% endif %}
+              </td>
+              <td class="text-xs text-muted">{{ role.createdAt ? role.createdAt|date('d/m/Y H:i') : '-' }}</td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <a href="{{ path('app_role_edit', {'id': role.id}) }}"
+                     class="text-sm font-medium text-indigo-400 hover:text-indigo-300">Modifier</a>
+                  {% if role.code in ['ROLE_ADMIN', 'ROLE_USER', 'ROLE_MODULE_ALL'] %}
+                    <span class="text-xs text-muted">Role systeme</span>
+                  {% else %}
+                    <form method="post" action="{{ path('app_role_delete', {'id': role.id}) }}"
+                          onsubmit="return confirm('Supprimer le role {{ role.code }} ?');"
+                          class="inline">
+                      <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ role.id) }}">
+                      <button type="submit" class="text-sm font-medium text-red-400 hover:text-red-300">Supprimer</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-12">
+                Aucun role configure.
+                <a href="{{ path('app_role_new') }}" class="ml-1 font-medium text-indigo-400 underline">Creer le premier</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+

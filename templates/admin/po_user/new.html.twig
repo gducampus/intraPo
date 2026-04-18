@@ -1,0 +1,26 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Nouveau compte — Administration — Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Nouveau compte utilisateur</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex items-center gap-2 text-sm text-muted mb-8">
+    <a href="{{ path('app_po_user_index') }}" class="hover:text-text transition">Comptes utilisateurs</a>
+    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    <span class="text-text">Nouveau</span>
+  </div>
+
+  <div class="max-w-3xl">
+    <div class="card-elevated p-8">
+      <h2 class="text-lg font-semibold text-text mb-1">Creer un compte utilisateur</h2>
+      <p class="text-sm text-muted mb-8">Definir le nom, l'email et les roles du compte.</p>
+      {{ include('admin/po_user/_form.html.twig', {'button_label': 'Creer le compte'}) }}
+    </div>
+  </div>
+{% endblock %}

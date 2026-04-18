@@ -1,0 +1,63 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Secteurs — Administration — Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Secteurs</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-text mb-2">Secteurs</h1>
+      <p class="text-muted">Gérer les secteurs de l'intranet.</p>
+    </div>
+    <a href="{{ path('app_secteur_new') }}" class="btn btn-primary">
+      <i data-lucide="plus" class="w-4 h-4"></i>
+      <span>Nouveau secteur</span>
+    </a>
+  </div>
+
+  <div class="card-elevated">
+    <div class="overflow-x-auto">
+      <table class="data-table admin-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for secteur in secteurs %}
+            <tr>
+              <td class="text-muted text-sm">{{ secteur.id }}</td>
+              <td class="font-semibold text-text">{{ secteur.name }}</td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <a href="{{ path('app_secteur_edit', {'id': secteur.id}) }}"
+                     class="text-sm font-medium text-indigo-400 hover:text-indigo-300">Modifier</a>
+                  <form method="post" action="{{ path('app_secteur_delete', {'id': secteur.id}) }}"
+                        onsubmit="return confirm('Supprimer ce secteur ?');" class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ secteur.id) }}">
+                    <button type="submit" class="text-sm font-medium text-red-400 hover:text-red-300">Supprimer</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="3" class="text-center text-muted py-12">
+                Aucun secteur pour le moment.
+                <a href="{{ path('app_secteur_new') }}" class="ml-1 font-medium text-indigo-400 underline">Créer le premier</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

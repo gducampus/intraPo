@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Module{% endblock %}
+
+{% block body %}
+    <h1>Module</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ module.id }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ module.title }}</td>
+            </tr>
+            <tr>
+                <th>Tag</th>
+                <td>{{ module.tag }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ module.description }}</td>
+            </tr>
+            <tr>
+                <th>IsAvailable</th>
+                <td>{{ module.isAvailable ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_module_index') }}">back to list</a>
+
+    <a href="{{ path('app_module_edit', {'id': module.id}) }}">edit</a>
+
+    {{ include('module/_delete_form.html.twig') }}
+{% endblock %}

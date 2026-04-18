@@ -1,0 +1,26 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Nouvelle fonctionnalité — Administration — Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Catalogue</p>
+    <h1 class="text-sm font-semibold text-text">Nouvelle fonctionnalité</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex items-center gap-2 text-sm text-muted mb-8">
+    <a href="{{ path('app_feature_index') }}" class="hover:text-text transition">Catalogue</a>
+    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    <span class="text-text">Nouvelle fonctionnalité</span>
+  </div>
+
+  <div class="max-w-2xl">
+    <div class="card-elevated p-8">
+      <h2 class="text-lg font-semibold text-text mb-1">Nouvelle fonctionnalité</h2>
+      <p class="text-sm text-muted mb-8">Ajoutez une fonctionnalité au catalogue pour pouvoir l'assigner aux modules.</p>
+      {{ include('admin/application_feature/_form.html.twig', {'button_label': 'Créer la fonctionnalité'}) }}
+    </div>
+  </div>
+{% endblock %}

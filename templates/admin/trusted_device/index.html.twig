@@ -1,0 +1,102 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Appareils autorises - Administration - Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Appareils autorises</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="mb-8">
+    <h1 class="text-2xl md:text-3xl font-bold text-text mb-2">Validation des appareils</h1>
+    <p class="text-muted">
+      Tout nouvel appareil est bloque jusqu'a validation par un administrateur.
+    </p>
+  </div>
+
+  <div class="card-elevated mb-6">
+    <div class="px-6 py-4 border-b border-border">
+      <h2 class="text-base font-semibold text-text">Demandes en attente</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="data-table admin-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Utilisateur</th>
+            <th>Appareil</th>
+            <th>IP</th>
+            <th>User-Agent</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for device in pendingDevices %}
+            <tr>
+              <td class="text-xs text-muted">{{ device.requestedAt ? device.requestedAt|date('d/m/Y H:i:s') : '-' }}</td>
+              <td class="font-semibold text-text">{{ device.user ? device.user.email : '-' }}</td>
+              <td class="text-xs text-muted">{{ device.label ?: '-' }}</td>
+              <td class="text-xs text-muted">{{ device.firstIp ?: '-' }}</td>
+              <td class="text-xs text-muted">{{ device.userAgent ?: '-' }}</td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <form method="post" action="{{ path('app_trusted_device_approve', {'id': device.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('approve_device_' ~ device.id) }}">
+                    <button type="submit" class="btn btn-primary">Approuver</button>
+                  </form>
+                  <form method="post" action="{{ path('app_trusted_device_reject', {'id': device.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('reject_device_' ~ device.id) }}">
+                    <button type="submit" class="btn">Rejeter</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-10">Aucune demande en attente.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card-elevated">
+    <div class="px-6 py-4 border-b border-border">
+      <h2 class="text-base font-semibold text-text">Appareils approuves recents</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="data-table admin-table">
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Appareil</th>
+            <th>IP</th>
+            <th>Derniere activite</th>
+            <th>Approuve par</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for device in approvedDevices %}
+            <tr>
+              <td class="font-semibold text-text">{{ device.user ? device.user.email : '-' }}</td>
+              <td class="text-xs text-muted">{{ device.label ?: '-' }}</td>
+              <td class="text-xs text-muted">{{ device.lastIp ?: '-' }}</td>
+              <td class="text-xs text-muted">
+                {{ device.lastSeenAt ? device.lastSeenAt|date('d/m/Y H:i:s') : '-' }}
+              </td>
+              <td class="text-xs text-muted">{{ device.approvedBy ? device.approvedBy.email : '-' }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-10">Aucun appareil approuve.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

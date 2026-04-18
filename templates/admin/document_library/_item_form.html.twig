@@ -1,0 +1,77 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Informations du fichier</h3>
+    <div class="grid sm:grid-cols-2 gap-6">
+      <div>
+        {{ form_label(form.title, 'Titre', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Ex : Processus de validation'}}) }}
+        {{ form_errors(form.title) }}
+      </div>
+      <div>
+        {{ form_label(form.position, 'Ordre', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.position, {'attr': {'class': 'form-control', 'min': 0}}) }}
+        {{ form_errors(form.position) }}
+      </div>
+    </div>
+
+    <div class="mt-6">
+      {{ form_label(form.description, 'Description', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+      {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3, 'placeholder': 'Description optionnelle'}}) }}
+      {{ form_errors(form.description) }}
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Source</h3>
+    <div class="grid sm:grid-cols-2 gap-6">
+      <div>
+        {{ form_label(form.itemType, 'Type de fichier', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.itemType, {'attr': {'class': 'form-control', 'data-role': 'item-type'}}) }}
+        {{ form_errors(form.itemType) }}
+      </div>
+      <div data-role="url-wrapper">
+        {{ form_label(form.externalUrl, 'URL', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.externalUrl, {'attr': {'class': 'form-control', 'placeholder': 'https://...'}}) }}
+        {{ form_errors(form.externalUrl) }}
+        <p class="mt-1 text-xs text-muted">Pour video: lien Vimeo ou YouTube.</p>
+      </div>
+    </div>
+
+    <div class="mt-6" data-role="upload-wrapper">
+      {{ form_label(form.uploadedFile, 'Importer un fichier', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+      {{ form_widget(form.uploadedFile, {'attr': {'class': 'form-control'}}) }}
+      {{ form_errors(form.uploadedFile) }}
+      {% if item.storedFilename %}
+        <p class="mt-2 text-xs text-muted">Fichier actuel: {{ item.originalFilename ?: item.storedFilename }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 pt-1">
+    <button type="submit" class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+    <a href="{{ path('app_document_admin_index') }}" class="text-sm text-muted hover:text-text transition">Annuler</a>
+  </div>
+
+{{ form_end(form) }}
+
+<script>
+  (function () {
+    const typeField = document.getElementById('{{ form.itemType.vars.id }}');
+    const urlWrapper = document.querySelector('[data-role="url-wrapper"]');
+    const uploadWrapper = document.querySelector('[data-role="upload-wrapper"]');
+
+    if (!typeField || !urlWrapper || !uploadWrapper) {
+      return;
+    }
+
+    const toggleFields = () => {
+      const isUpload = typeField.value === '{{ constant('App\\\\Entity\\\\DocumentItem::TYPE_UPLOADED_FILE') }}';
+      urlWrapper.style.display = isUpload ? 'none' : '';
+      uploadWrapper.style.display = isUpload ? '' : 'none';
+    };
+
+    typeField.addEventListener('change', toggleFields);
+    toggleFields();
+  })();
+</script>

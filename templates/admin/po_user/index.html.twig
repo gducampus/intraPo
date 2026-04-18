@@ -1,0 +1,167 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Comptes utilisateurs — Administration — Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Comptes utilisateurs</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-text mb-2">Comptes utilisateurs</h1>
+      <p class="text-muted">Creer et gerer les comptes d'acces a l'intranet.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button type="button"
+              class="btn btn-secondary"
+              style="min-height: 1.9rem; font-size: 0.72rem; padding: 0.34rem 0.56rem;"
+              data-open-role-mapping>
+        <i data-lucide="table-2" class="w-3.5 h-3.5"></i>
+        <span>Mapping</span>
+      </button>
+      <a href="{{ path('app_po_user_new') }}" class="btn btn-primary">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span>Nouveau compte</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card-elevated">
+    <div class="overflow-x-auto">
+      <table class="data-table admin-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            <tr>
+              <td class="font-semibold text-text">{{ user.name ?: '-' }}</td>
+              <td class="font-semibold text-text">{{ user.email }}</td>
+              <td>
+                <div class="flex flex-wrap gap-1">
+                  {% set roles = user.roles|filter(role => role != 'ROLE_USER') %}
+                  {% if roles is empty %}
+                    <span class="badge badge-info">ROLE_USER</span>
+                  {% else %}
+                    {% for role in roles %}
+                      <span class="badge badge-info">{{ role }}</span>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+              </td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <a href="{{ path('app_po_user_edit', {'id': user.id}) }}"
+                     class="text-sm font-medium text-indigo-400 hover:text-indigo-300">Modifier</a>
+                  {% if app.user and app.user.userIdentifier == user.email %}
+                    <span class="text-xs text-muted">Compte courant</span>
+                  {% else %}
+                    <form method="post" action="{{ path('app_po_user_delete', {'id': user.id}) }}"
+                          onsubmit="return confirm('Supprimer le compte {{ user.email }} ?');"
+                          class="inline">
+                      <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                      <button type="submit" class="text-sm font-medium text-red-400 hover:text-red-300">Supprimer</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-12">
+                Aucun compte utilisateur.
+                <a href="{{ path('app_po_user_new') }}" class="ml-1 font-medium text-indigo-400 underline">Creer le premier</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/45 p-4" data-role-mapping-modal>
+    <div class="card-elevated w-full max-w-2xl bg-panel p-0 overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div>
+          <h2 class="text-base font-semibold text-text">Mapping des roles</h2>
+          <p class="text-xs text-muted mt-0.5">Correspondance entre libelles et codes techniques.</p>
+        </div>
+        <button type="button" class="btn-icon" data-close-role-mapping aria-label="Fermer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5">
+        <div class="overflow-x-auto max-h-[60vh]">
+          <table class="data-table admin-table">
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Code</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for role in rolesCatalog %}
+                <tr>
+                  <td class="font-semibold text-text">{{ role.label }}</td>
+                  <td class="text-xs font-mono text-muted">{{ role.code }}</td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="2" class="text-center text-muted py-8">Aucun role configure.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const modal = document.querySelector('[data-role-mapping-modal]');
+      const openBtn = document.querySelector('[data-open-role-mapping]');
+      if (!modal || !openBtn) {
+        return;
+      }
+
+      const close = function () {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      };
+
+      const open = function () {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      };
+
+      openBtn.addEventListener('click', open);
+
+      modal.querySelectorAll('[data-close-role-mapping]').forEach(function (btn) {
+        btn.addEventListener('click', close);
+      });
+
+      modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+          close();
+        }
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          close();
+        }
+      });
+    })();
+  </script>
+{% endblock %}

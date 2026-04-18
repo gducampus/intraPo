@@ -1,0 +1,158 @@
+﻿<!doctype html>
+<html lang="fr" class="dark">
+<head>
+  <script>
+    if (localStorage.getItem("theme") === "light") document.documentElement.classList.remove("dark");
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>{% block title %}{{ module.title }} â€” Intranet PO{% endblock %}</title>
+  <link rel="icon" href="{{ asset('images/logo.png') }}" />
+  <link href="{{ asset('css/index.css') }}" rel="stylesheet">
+  {% block stylesheets %}{% endblock %}
+</head>
+<body id="dashboard">
+  {% set moduleFeatureLinks = moduleFeatureLinks|default({}) %}
+  {% set accessibleModules = accessibleModules|default([]) %}
+
+  {# â”€â”€ Overlay mobile â”€â”€ #}
+  <div id="sidebarOverlay"
+       class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"
+       aria-hidden="true"></div>
+
+  {# â”€â”€ Sidebar â”€â”€ #}
+  <aside class="sidebar" id="sidebar">
+
+    {# Logo + nom du module #}
+    <div class="logo-section flex items-center gap-3 p-5 border-b border-border">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+        <img src="{{ asset('images/logo.png') }}" alt="Intranet PO" class="w-8 h-8 object-contain brightness-0 invert" />
+      </div>
+      <div class="logo-text flex-1">
+        <p class="text-lg font-bold text-text">{{ module.title }}</p>
+        <p class="text-xs text-muted">Intranet PO</p>
+      </div>
+      <button class="btn-icon w-8 h-8 lg:hidden! js-mobile-menu-toggle" aria-label="Fermer le menu">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    {# Navigation du module #}
+    <nav class="py-4 flex-1 overflow-y-auto">
+      {% if accessibleModules|length > 0 %}
+        <div class="nav-section-title">Modules</div>
+
+        {% for accessibleModule in accessibleModules %}
+          <a
+            href="{{ path('app_module_page', {'id': accessibleModule.id}) }}"
+            class="nav-item {{ accessibleModule.id == module.id ? 'active' : '' }}"
+            data-tooltip="{{ accessibleModule.title }}"
+          >
+            <i data-lucide="layout-grid" class="w-5 h-5"></i>
+            <span class="nav-text">{{ accessibleModule.title }}</span>
+          </a>
+        {% endfor %}
+      {% endif %}
+
+      {% if moduleFeatures is defined and moduleFeatures|length > 0 %}
+        <div class="nav-section-title">{{ module.title }}</div>
+        {% for mf in moduleFeatures %}
+          {% set href = moduleFeatureLinks[mf.id]|default(null) %}
+          {% if href %}
+            <a href="{{ href }}" class="nav-item" data-tooltip="{{ mf.feature.label }}">
+              <i data-lucide="{{ mf.feature.icon ?? 'circle' }}" class="w-5 h-5"></i>
+              <span class="nav-text">{{ mf.feature.label }}</span>
+            </a>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      <div class="nav-section-title">Compte</div>
+
+      <form method="post" action="{{ path('app_logout') }}">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout_post') }}">
+        <button type="submit"
+                class="nav-item w-full text-left border-0 bg-transparent"
+                style="color: var(--color-red-400, #f87171);"
+                data-tooltip="Deconnexion">
+          <i data-lucide="log-out" class="w-5 h-5"></i>
+          <span class="nav-text">Deconnexion</span>
+        </button>
+      </form>
+
+    </nav>
+
+    {# User section #}
+    <div class="user-section mt-auto p-4 border-t border-border shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center shrink-0">
+          <span class="text-white font-semibold text-sm">
+            {{ app.user ? app.user.userIdentifier|slice(0, 2)|upper : 'PO' }}
+          </span>
+        </div>
+        <div class="user-info flex-1 min-w-0">
+          <p class="font-semibold text-sm text-text truncate">{{ app.user ? app.user.userIdentifier : '' }}</p>
+          <p class="text-xs text-muted truncate">{{ module.tag }}</p>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  {# â”€â”€ Contenu principal â”€â”€ #}
+  <main class="main-content" id="mainContent">
+
+    {# Header #}
+    <header class="sticky top-0 z-50 glass">
+      <div class="flex items-center justify-between px-2 sm:px-6 py-2 sm:py-4">
+        <div class="flex items-center gap-4">
+          <button class="mobile-menu-btn js-mobile-menu-toggle" id="mobileMenuBtn" aria-label="Ouvrir le menu">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <button class="sidebar-toggle-btn js-sidebar-toggle" aria-label="RÃ©duire la sidebar">
+            <i data-lucide="panel-left" class="w-5 h-5"></i>
+          </button>
+          <div>{% block page_header %}{% endblock %}</div>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button class="btn-icon" id="themeToggle" aria-label="ThÃ¨me"
+                  onclick="document.documentElement.classList.toggle('dark');
+                           localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');">
+            <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+          </button>
+          <a href="{{ path('app_home') }}" class="btn-icon" aria-label="Accueil">
+            <i data-lucide="home" class="w-5 h-5"></i>
+          </a>
+          <form method="post" action="{{ path('app_logout') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout_post') }}">
+            <button type="submit"
+                    class="btn-icon"
+                    style="color: var(--color-red-400, #f87171);"
+                    aria-label="Deconnexion">
+              <i data-lucide="log-out" class="w-5 h-5"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <div class="inner-content">
+      {% for message in app.flashes('error') %}
+        <div class="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('success') %}
+        <div class="mb-6 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400">{{ message }}</div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </div>
+
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+  <script defer src="{{ asset('js/index.js') }}"></script>
+  {% block javascripts %}{% endblock %}
+
+</body>
+</html>
+

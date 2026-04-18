@@ -1,0 +1,88 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Modules - Administration - Intranet PO{% endblock %}
+
+{% block page_header %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-widest text-muted">Administration</p>
+    <h1 class="text-sm font-semibold text-text">Modules</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-text mb-2">Modules</h1>
+      <p class="text-muted">Gerer les modules de l'intranet.</p>
+    </div>
+    <a href="{{ path('app_module_new') }}" class="btn btn-primary">
+      <i data-lucide="plus" class="w-4 h-4"></i>
+      <span>Nouveau module</span>
+    </a>
+  </div>
+
+  <div class="card-elevated">
+    <div class="overflow-x-auto">
+      <table class="data-table admin-table">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Tag</th>
+            <th>Roles</th>
+            <th>Description</th>
+            <th>Disponible</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for module in modules %}
+            <tr>
+              <td class="font-semibold text-text">{{ module.title }}</td>
+              <td><span class="badge badge-info">{{ module.tag }}</span></td>
+              <td>
+                {% if module.accessRoles is empty %}
+                  <span class="text-xs text-muted">Aucun role specifique</span>
+                {% else %}
+                  <div class="flex flex-wrap gap-1 max-w-xs">
+                    {% for role in module.accessRoles|slice(0, 3) %}
+                      <span class="badge badge-info">{{ role }}</span>
+                    {% endfor %}
+                    {% if module.accessRoles|length > 3 %}
+                      <span class="text-xs text-muted">+{{ module.accessRoles|length - 3 }}</span>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </td>
+              <td class="text-muted max-w-xs truncate">{{ module.description }}</td>
+              <td>
+                {% if module.isAvailable %}
+                  <span class="badge badge-success">Disponible</span>
+                {% else %}
+                  <span class="badge badge-danger">Indisponible</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <a href="{{ path('app_module_page', {'id': module.id}) }}"
+                     class="text-sm font-medium text-indigo-400 hover:text-indigo-300">Ouvrir l'interface</a>
+                  <form method="post" action="{{ path('app_module_delete', {'id': module.id}) }}"
+                        onsubmit="return confirm('Supprimer ce module ?');" class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ module.id) }}">
+                    <button type="submit" class="text-sm font-medium text-red-400 hover:text-red-300">Supprimer</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-12">
+                Aucun module pour le moment.
+                <a href="{{ path('app_module_new') }}" class="ml-1 font-medium text-indigo-400 underline">Creer le premier</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

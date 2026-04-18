@@ -1,0 +1,85 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+  <div class="rounded-xl border border-border/60 p-5">
+    <h3 class="text-sm font-semibold text-text mb-4">Configuration du dossier</h3>
+    <div class="grid sm:grid-cols-2 gap-6">
+      <div>
+        {{ form_label(form.name, 'Nom', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Ex : Formations'}}) }}
+        {{ form_errors(form.name) }}
+      </div>
+      <div>
+        {{ form_label(form.parent, 'Dossier parent', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.parent, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.parent) }}
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-6 mt-6">
+      <div>
+        {{ form_label(form.position, 'Ordre', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.position, {'attr': {'class': 'form-control', 'min': 0}}) }}
+        {{ form_errors(form.position) }}
+      </div>
+      {% if rootRoleSelectMode %}
+        <div class="rounded-lg border border-border/60 bg-panel-2 px-4 py-3" data-role="root-access-role-wrapper">
+          {{ form_label(form.accessRoles, 'Role autorise', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+          {{ form_widget(form.accessRoles) }}
+          {{ form_errors(form.accessRoles) }}
+          <p class="mt-1 text-xs text-muted">Choisissez un role pour restreindre le dossier racine. Laissez vide pour un dossier public.</p>
+        </div>
+      {% else %}
+        <div class="rounded-lg border border-border/60 bg-panel-2 px-4 py-3">
+          <label class="inline-flex items-center gap-2 text-sm font-medium text-text">
+            {{ form_widget(form.isSecured) }}
+            <span>Dossier securise</span>
+          </label>
+          {{ form_errors(form.isSecured) }}
+          <p class="mt-1 text-xs text-muted">Si active, seuls les roles selectionnes pourront acceder au dossier.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="mt-6">
+      {{ form_label(form.description, 'Description', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+      {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3, 'placeholder': 'Description du contenu'}}) }}
+      {{ form_errors(form.description) }}
+    </div>
+  </div>
+
+  {% if not rootRoleSelectMode %}
+    <div class="rounded-xl border border-border/60 p-5">
+      <h3 class="text-sm font-semibold text-text mb-4">Securite par role</h3>
+      {{ form_label(form.accessRoles, 'Roles autorises', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+      {{ form_widget(form.accessRoles) }}
+      {{ form_errors(form.accessRoles) }}
+      <p class="mt-1 text-xs text-muted">Selection multiple possible.</p>
+    </div>
+  {% endif %}
+
+  <div class="flex items-center gap-4 pt-1">
+    <button type="submit" class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+    <a href="{{ path('app_document_admin_index') }}" class="text-sm text-muted hover:text-text transition">Annuler</a>
+  </div>
+
+{{ form_end(form) }}
+
+{% if rootRoleSelectMode %}
+  <script>
+    (function () {
+      const parentField = document.getElementById('{{ form.parent.vars.id }}');
+      const roleWrapper = document.querySelector('[data-role="root-access-role-wrapper"]');
+
+      if (!parentField || !roleWrapper) {
+        return;
+      }
+
+      const syncRootRoleVisibility = () => {
+        roleWrapper.style.display = parentField.value === '' ? '' : 'none';
+      };
+
+      parentField.addEventListener('change', syncRootRoleVisibility);
+      syncRootRoleVisibility();
+    })();
+  </script>
+{% endif %}
