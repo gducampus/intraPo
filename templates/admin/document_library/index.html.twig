@@ -13,41 +13,255 @@
   <style>
     .drive-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.35rem 2.25rem;
     }
 
     .drive-folder {
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 0.85rem;
-      padding: 0.75rem;
-      background: rgba(248, 250, 252, 0.65);
+      position: relative;
+      min-height: 11.7rem;
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      border-radius: 0.5rem;
+      padding: 1.15rem 1.25rem 3.25rem;
+      background: #ffffff;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 0.6rem;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 14px 30px -26px rgba(15, 23, 42, 0.45);
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    .drive-folder:hover {
+      border-color: rgba(244, 95, 95, 0.28);
+      box-shadow: 0 20px 34px -26px rgba(15, 23, 42, 0.6);
+      transform: translateY(-1px);
     }
 
     .drive-folder-title {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.45rem;
+      justify-content: center;
+      gap: 0;
       color: #0f172a;
       text-decoration: none;
       min-width: 0;
-      font-weight: 600;
-      font-size: 0.83rem;
+      max-width: 100%;
     }
 
-    .drive-folder-title i {
-      width: 1.2rem;
-      height: 1.2rem;
+    .drive-folder-icon,
+    .drive-item-icon {
+      width: 3.45rem;
+      height: 2.7rem;
+      position: relative;
+      margin-bottom: 1.15rem;
     }
 
-    .drive-folder-title span {
-      white-space: nowrap;
+    .drive-folder-icon {
+      border-radius: 0.72rem;
+      background: #f45f5f;
+    }
+
+    .drive-folder-icon::before {
+      content: "";
+      position: absolute;
+      left: 0.5rem;
+      top: -0.5rem;
+      width: 1.7rem;
+      height: 0.85rem;
+      border-radius: 0.58rem 0.58rem 0 0;
+      background: #f45f5f;
+    }
+
+    .drive-folder-icon::after {
+      content: "";
+      position: absolute;
+      right: 0.18rem;
+      top: 0.42rem;
+      width: 1.45rem;
+      height: 0.48rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .drive-item-icon {
+      width: 2.8rem;
+      height: 3.45rem;
+      border-radius: 0.58rem;
+      background: #f45f5f;
+      box-shadow: inset -0.6rem 0.6rem 0 rgba(255, 255, 255, 0.16);
+    }
+
+    .drive-item-icon::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0.9rem;
+      height: 0.9rem;
+      border-radius: 0 0.58rem 0 0.28rem;
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .drive-item-icon::after {
+      content: "";
+      position: absolute;
+      left: 0.65rem;
+      right: 0.65rem;
+      bottom: 0.82rem;
+      height: 0.22rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.55);
+      box-shadow: 0 -0.55rem 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .drive-item-icon-video {
+      background: #ef4444;
+    }
+
+    .drive-item-icon-link {
+      background: #64748b;
+    }
+
+    .drive-item-icon-file {
+      background: #f45f5f;
+    }
+
+    .drive-folder-name {
+      color: #111827;
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .drive-folder-type {
+      color: #a7adba;
+      font-size: 0.86rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-top: 0.48rem;
+    }
+
+    .drive-folder-tags {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.28rem;
+      margin-top: 0.62rem;
+      max-width: 100%;
+    }
+
+    .drive-folder-tag {
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #64748b;
+      font-size: 0.64rem;
+      font-weight: 750;
+      line-height: 1.1;
+      padding: 0.24rem 0.48rem;
+      max-width: 7.5rem;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .drive-folder-actions {
+      position: absolute;
+      right: 0.72rem;
+      bottom: 0.72rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .drive-folder-secured {
+      position: absolute;
+      top: 0.72rem;
+      left: 0.72rem;
+    }
+
+    .drive-card-menu-toggle {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      background: rgba(255, 255, 255, 0.94);
+      color: #94a3b8;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .drive-card-menu-toggle:hover,
+    .drive-card-menu-toggle[aria-expanded="true"] {
+      color: #475569;
+      border-color: rgba(148, 163, 184, 0.65);
+      background: #f8fafc;
+    }
+
+    .drive-card-menu-toggle i {
+      width: 1.05rem;
+      height: 1.05rem;
+    }
+
+    .drive-card-menu {
+      position: absolute;
+      right: 0;
+      bottom: 2.35rem;
+      z-index: 20;
+      min-width: 10.5rem;
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      border-radius: 0.5rem;
+      background: #ffffff;
+      box-shadow: 0 18px 40px -24px rgba(15, 23, 42, 0.65);
+      padding: 0.35rem;
+      display: none;
+      text-align: left;
+    }
+
+    .drive-card-menu.is-open {
+      display: block;
+    }
+
+    .drive-card-menu-item {
+      width: 100%;
+      border: 0;
+      border-radius: 0.42rem;
+      background: transparent;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0.62rem;
+      font-size: 0.78rem;
+      font-weight: 650;
+      text-decoration: none;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    .drive-card-menu-item:hover {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .drive-card-menu-item-danger {
+      color: #ef4444;
+    }
+
+    .drive-card-menu-item-danger:hover {
+      background: #fff1f2;
+      color: #dc2626;
+    }
+
+    .drive-card-menu-item i {
+      width: 1rem;
+      height: 1rem;
+      flex: 0 0 auto;
     }
 
     .drive-breadcrumb {
@@ -85,7 +299,7 @@
     }
 
     .drive-modal {
-      width: min(540px, 100%);
+      width: min(720px, 100%);
       border-radius: 0.95rem;
       border: 1px solid rgba(148, 163, 184, 0.24);
       background: #ffffff;
@@ -104,6 +318,168 @@
       margin: 0.28rem 0 0;
       color: #64748b;
       font-size: 0.78rem;
+    }
+
+    .drive-root-form-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(210px, 0.55fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .drive-folder-preview {
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 0.5rem;
+      min-height: 10.25rem;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.15rem;
+      box-shadow: 0 14px 30px -24px rgba(15, 23, 42, 0.5);
+    }
+
+    .drive-folder-preview-icon {
+      width: 3.45rem;
+      height: 2.7rem;
+      border-radius: 0.72rem;
+      background: #f45f5f;
+      position: relative;
+      margin-bottom: 1.1rem;
+    }
+
+    .drive-folder-preview-icon::before {
+      content: "";
+      position: absolute;
+      left: 0.5rem;
+      top: -0.5rem;
+      width: 1.7rem;
+      height: 0.85rem;
+      border-radius: 0.58rem 0.58rem 0 0;
+      background: #f45f5f;
+    }
+
+    .drive-folder-preview-icon::after {
+      content: "";
+      position: absolute;
+      right: 0.18rem;
+      top: 0.42rem;
+      width: 1.45rem;
+      height: 0.48rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .drive-folder-preview-name {
+      max-width: 100%;
+      color: #111827;
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .drive-folder-preview-type {
+      color: #a7adba;
+      font-size: 0.84rem;
+      font-weight: 700;
+      margin-top: 0.32rem;
+    }
+
+    .drive-folder-preview-role {
+      color: #64748b;
+      font-size: 0.72rem;
+      margin-top: 0.5rem;
+    }
+
+    .drive-role-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.55rem;
+      max-height: 15.5rem;
+      overflow: auto;
+      padding-right: 0.15rem;
+    }
+
+    .drive-role-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .drive-role-card {
+      min-height: 4.2rem;
+      border: 1px solid rgba(203, 213, 225, 0.85);
+      border-radius: 0.62rem;
+      background: #f8fafc;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.58rem;
+      padding: 0.78rem;
+      cursor: pointer;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .drive-role-card:hover {
+      border-color: rgba(244, 95, 95, 0.55);
+      background: #fffafa;
+    }
+
+    .drive-role-check {
+      width: 1.05rem;
+      height: 1.05rem;
+      border-radius: 999px;
+      border: 1.5px solid #cbd5e1;
+      background: #ffffff;
+      flex: 0 0 auto;
+      margin-top: 0.08rem;
+      box-shadow: inset 0 0 0 3px #ffffff;
+    }
+
+    .drive-role-name {
+      display: block;
+      color: #0f172a;
+      font-size: 0.82rem;
+      font-weight: 750;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .drive-role-code {
+      display: block;
+      color: #94a3b8;
+      font-size: 0.68rem;
+      font-weight: 650;
+      margin-top: 0.25rem;
+      word-break: break-word;
+    }
+
+    .drive-role-option input:focus-visible + .drive-role-card {
+      outline: 2px solid rgba(244, 95, 95, 0.38);
+      outline-offset: 2px;
+    }
+
+    .drive-role-option input:checked + .drive-role-card {
+      border-color: rgba(244, 95, 95, 0.78);
+      background: #fff4f4;
+      box-shadow: 0 14px 28px -24px rgba(185, 28, 28, 0.85);
+    }
+
+    .drive-role-option input:checked + .drive-role-card .drive-role-check {
+      border-color: #f45f5f;
+      background: #f45f5f;
+    }
+
+    @media (max-width: 720px) {
+      .drive-root-form-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .drive-folder-preview {
+        min-height: 8.8rem;
+      }
     }
   </style>
 
@@ -148,32 +524,44 @@
           {% for folder in childFolders %}
             <div class="drive-folder">
               <a href="{{ path('app_document_admin_index', {'folder': folder.id}) }}" class="drive-folder-title">
-                <i data-lucide="folder" class="w-5 h-5 text-indigo-400"></i>
-                <span>{{ folder.name }}</span>
-              </a>
-              <div class="flex items-center gap-2 shrink-0">
-                <a href="{{ path('app_document_admin_index', {'folder': folder.id}) }}"
-                   class="text-slate-400 hover:text-slate-300 inline-flex items-center"
-                   title="Afficher"
-                   aria-label="Afficher">
-                  <i data-lucide="eye" class="w-4 h-4"></i>
-                </a>
-                {% if folder.parent is null and folder.isSecured %}
-                  <span class="badge badge-warning">Securise</span>
+                <span class="drive-folder-icon"></span>
+                <span class="drive-folder-name">{{ folder.name }}</span>
+                <span class="drive-folder-type">Dossier de fichiers</span>
+                {% if folder.tags is not empty %}
+                  <span class="drive-folder-tags">
+                    {% for tag in folder.tags %}
+                      <span class="drive-folder-tag">{{ tag.name }}</span>
+                    {% endfor %}
+                  </span>
                 {% endif %}
-                <form method="post"
-                      action="{{ path('app_document_admin_folder_delete', {'id': folder.id}) }}"
-                      onsubmit="return confirm('Supprimer ce dossier et son contenu ?');"
-                      class="inline">
-                  <input type="hidden" name="_token" value="{{ csrf_token('delete_folder' ~ folder.id) }}">
-                  <input type="hidden" name="return_folder" value="{{ currentFolder ? currentFolder.id : '' }}">
-                  <button type="submit"
-                          class="text-red-400 hover:text-red-300 inline-flex items-center"
-                          title="Supprimer"
-                          aria-label="Supprimer">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                  </button>
-                </form>
+              </a>
+              {% if folder.parent is null and folder.isSecured %}
+                <span class="badge badge-warning drive-folder-secured">Securise</span>
+              {% endif %}
+              <div class="drive-folder-actions">
+                <button type="button" class="drive-card-menu-toggle" aria-label="Actions" aria-expanded="false" data-role="drive-card-menu-toggle">
+                  <i data-lucide="ellipsis-vertical"></i>
+                </button>
+                <div class="drive-card-menu" data-role="drive-card-menu">
+                  <a href="{{ path('app_document_admin_index', {'folder': folder.id}) }}" class="drive-card-menu-item">
+                    <i data-lucide="eye"></i>
+                    <span>Afficher</span>
+                  </a>
+                  <a href="{{ path('app_document_admin_folder_edit', {'id': folder.id}) }}" class="drive-card-menu-item">
+                    <i data-lucide="pencil"></i>
+                    <span>Modifier</span>
+                  </a>
+                  <form method="post"
+                        action="{{ path('app_document_admin_folder_delete', {'id': folder.id}) }}"
+                        onsubmit="return confirm('Supprimer ce dossier et son contenu ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_folder' ~ folder.id) }}">
+                    <input type="hidden" name="return_folder" value="{{ currentFolder ? currentFolder.id : '' }}">
+                    <button type="submit" class="drive-card-menu-item drive-card-menu-item-danger">
+                      <i data-lucide="trash-2"></i>
+                      <span>Supprimer</span>
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           {% endfor %}
@@ -187,82 +575,55 @@
         {% if items is empty %}
           <p class="text-sm text-muted">Aucun fichier dans ce dossier.</p>
         {% else %}
-          <div class="overflow-x-auto">
-            <table class="data-table admin-table">
-              <thead>
-                <tr>
-                  <th>Titre</th>
-                  <th>Type</th>
-                  <th>Source</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for item in items %}
-                  <tr>
-                    <td>
-                      <p class="font-semibold text-text">{{ item.title }}</p>
-                    </td>
-                    <td class="text-xs text-muted">
-                      {% if item.itemType == constant('App\\Entity\\DocumentItem::TYPE_VIDEO_LINK') %}
-                        Video
-                      {% elseif item.itemType == constant('App\\Entity\\DocumentItem::TYPE_UPLOADED_FILE') %}
-                        Fichier
-                      {% else %}
-                        Lien
-                      {% endif %}
-                    </td>
-                    <td class="text-xs text-muted">
-                      {% if item.itemType == constant('App\\Entity\\DocumentItem::TYPE_UPLOADED_FILE') %}
-                        {{ item.originalFilename ?: '-' }}
-                      {% else %}
-                        <a href="{{ item.externalUrl }}" target="_blank" rel="noopener" class="text-indigo-400 hover:underline">
-                          Ouvrir
-                        </a>
-                      {% endif %}
-                    </td>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        {% if item.itemType == constant('App\\Entity\\DocumentItem::TYPE_UPLOADED_FILE') %}
-                          <a href="{{ path('app_document_file_download', {'id': item.id}) }}"
-                             target="_blank"
-                             rel="noopener"
-                             class="text-slate-400 hover:text-slate-300 inline-flex items-center"
-                             title="Afficher"
-                             aria-label="Afficher">
-                            <i data-lucide="eye" class="w-4 h-4"></i>
-                          </a>
-                        {% elseif item.externalUrl %}
-                          <a href="{{ item.externalUrl }}"
-                             target="_blank"
-                             rel="noopener"
-                             class="text-slate-400 hover:text-slate-300 inline-flex items-center"
-                             title="Afficher"
-                             aria-label="Afficher">
-                            <i data-lucide="eye" class="w-4 h-4"></i>
-                          </a>
-                        {% endif %}
-                        <a href="{{ path('app_document_admin_item_edit', {'id': item.id}) }}"
-                           class="text-xs font-medium text-indigo-400 hover:text-indigo-300">Modifier</a>
-                        <form method="post"
-                              action="{{ path('app_document_admin_item_delete', {'id': item.id}) }}"
-                              onsubmit="return confirm('Supprimer ce fichier ?');"
-                              class="inline">
-                          <input type="hidden" name="_token" value="{{ csrf_token('delete_item' ~ item.id) }}">
-                          <input type="hidden" name="return_folder" value="{{ currentFolder.id }}">
-                          <button type="submit"
-                                  class="text-red-400 hover:text-red-300 inline-flex items-center"
-                                  title="Supprimer"
-                                  aria-label="Supprimer">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+          <div class="drive-grid">
+            {% for item in items %}
+              {% set isUpload = item.itemType == constant('App\\Entity\\DocumentItem::TYPE_UPLOADED_FILE') %}
+              {% set isVideo = item.itemType == constant('App\\Entity\\DocumentItem::TYPE_VIDEO_LINK') %}
+              {% set itemUrl = isUpload ? path('app_document_file_download', {'id': item.id}) : item.externalUrl %}
+              {% set itemTypeLabel = isVideo ? 'Video' : (isUpload ? 'Fichier' : 'Lien externe') %}
+              <div class="drive-folder">
+                {% if itemUrl %}
+                  <a href="{{ itemUrl }}" target="_blank" rel="noopener" class="drive-folder-title">
+                    <span class="drive-item-icon {{ isVideo ? 'drive-item-icon-video' : (isUpload ? 'drive-item-icon-file' : 'drive-item-icon-link') }}"></span>
+                    <span class="drive-folder-name">{{ item.title }}</span>
+                    <span class="drive-folder-type">{{ itemTypeLabel }}</span>
+                  </a>
+                {% else %}
+                  <div class="drive-folder-title">
+                    <span class="drive-item-icon {{ isVideo ? 'drive-item-icon-video' : (isUpload ? 'drive-item-icon-file' : 'drive-item-icon-link') }}"></span>
+                    <span class="drive-folder-name">{{ item.title }}</span>
+                    <span class="drive-folder-type">{{ itemTypeLabel }}</span>
+                  </div>
+                {% endif %}
+                <div class="drive-folder-actions">
+                  <button type="button" class="drive-card-menu-toggle" aria-label="Actions" aria-expanded="false" data-role="drive-card-menu-toggle">
+                    <i data-lucide="ellipsis-vertical"></i>
+                  </button>
+                  <div class="drive-card-menu" data-role="drive-card-menu">
+                    {% if itemUrl %}
+                      <a href="{{ itemUrl }}" target="_blank" rel="noopener" class="drive-card-menu-item">
+                        <i data-lucide="eye"></i>
+                        <span>Afficher</span>
+                      </a>
+                    {% endif %}
+                    <a href="{{ path('app_document_admin_item_edit', {'id': item.id}) }}" class="drive-card-menu-item">
+                      <i data-lucide="pencil"></i>
+                      <span>Modifier</span>
+                    </a>
+                    <form method="post"
+                          action="{{ path('app_document_admin_item_delete', {'id': item.id}) }}"
+                          onsubmit="return confirm('Supprimer ce fichier ?');">
+                      <input type="hidden" name="_token" value="{{ csrf_token('delete_item' ~ item.id) }}">
+                      <input type="hidden" name="return_folder" value="{{ currentFolder.id }}">
+                      <button type="submit" class="drive-card-menu-item drive-card-menu-item-danger">
+                        <i data-lucide="trash-2"></i>
+                        <span>Supprimer</span>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
           </div>
         {% endif %}
       </div>
@@ -281,19 +642,57 @@
       <form method="post" action="{{ path('app_document_admin_index') }}" class="space-y-4">
         <input type="hidden" name="action" value="create_folder">
         <input type="hidden" name="parent_id" value="">
-        <div>
-          <label class="block text-sm font-medium text-text mb-1.5">Nom</label>
-          <input type="text" name="name" required class="form-control" placeholder="Nom du dossier">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-text mb-1.5">Role autorise</label>
-          <select name="access_role" class="form-control js-select2" data-placeholder="Choisir un role">
-            <option value="">Tous les roles</option>
-            {% for role in roles %}
-              <option value="{{ role.code }}">{{ role.label }}</option>
-            {% endfor %}
-          </select>
-          <p class="mt-1 text-xs text-muted">Selectionnez un role pour restreindre l acces, ou laissez vide pour un dossier public.</p>
+        <div class="drive-root-form-layout">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-text mb-1.5">Nom</label>
+              <input type="text" name="name" required class="form-control" placeholder="Nom du dossier" data-role="root-folder-name">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-text mb-1.5">Role autorise</label>
+              <div class="drive-role-options" role="radiogroup" aria-label="Role autorise">
+                <label class="drive-role-option">
+                  <input type="radio" name="access_role" value="" checked data-role-name="Tous les roles">
+                  <span class="drive-role-card">
+                    <span class="drive-role-check"></span>
+                    <span>
+                      <span class="drive-role-name">Tous les roles</span>
+                      <span class="drive-role-code">Dossier visible par tous les profils autorises</span>
+                    </span>
+                  </span>
+                </label>
+                {% for role in roles %}
+                  {% set roleLabel = role.label ?: role.code %}
+                  <label class="drive-role-option">
+                    <input type="radio" name="access_role" value="{{ role.code }}" data-role-name="{{ roleLabel }}">
+                    <span class="drive-role-card">
+                      <span class="drive-role-check"></span>
+                      <span>
+                        <span class="drive-role-name">{{ roleLabel }}</span>
+                        <span class="drive-role-code">{{ role.code }}</span>
+                      </span>
+                    </span>
+                  </label>
+                {% endfor %}
+              </div>
+              <p class="mt-1 text-xs text-muted">Choisissez un role pour securiser le dossier racine, ou gardez "Tous les roles".</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-text mb-1.5">Tags</label>
+              <select name="tags[]" class="form-control js-select2 js-document-tags-select" multiple data-placeholder="Ajouter ou creer des tags">
+                {% for tag in tags %}
+                  <option value="{{ tag.id }}">{{ tag.name }}</option>
+                {% endfor %}
+              </select>
+              <p class="mt-1 text-xs text-muted">Tapez un nouveau tag puis validez avec Entree s'il n'existe pas.</p>
+            </div>
+          </div>
+          <div class="drive-folder-preview" aria-hidden="true">
+            <div class="drive-folder-preview-icon"></div>
+            <div class="drive-folder-preview-name" data-role="root-folder-preview-name">Nouveau dossier</div>
+            <div class="drive-folder-preview-type">Dossier de fichiers</div>
+            <div class="drive-folder-preview-role" data-role="root-folder-preview-role">Tous les roles</div>
+          </div>
         </div>
         <div class="flex items-center gap-3 pt-1">
           <button type="submit" class="btn btn-primary">Creer</button>
@@ -319,6 +718,15 @@
           <div>
             <label class="block text-sm font-medium text-text mb-1.5">Nom</label>
             <input type="text" name="name" required class="form-control" placeholder="Nom du sous-dossier">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text mb-1.5">Tags</label>
+            <select name="tags[]" class="form-control js-select2 js-document-tags-select" multiple data-placeholder="Ajouter ou creer des tags">
+              {% for tag in tags %}
+                <option value="{{ tag.id }}">{{ tag.name }}</option>
+              {% endfor %}
+            </select>
+            <p class="mt-1 text-xs text-muted">Tapez un nouveau tag puis validez avec Entree s'il n'existe pas.</p>
           </div>
           <div class="flex items-center gap-3 pt-1">
             <button type="submit" class="btn btn-primary">Creer</button>
@@ -403,6 +811,41 @@
         });
       });
 
+      const closeCardMenus = () => {
+        document.querySelectorAll('[data-role="drive-card-menu"].is-open').forEach((menu) => {
+          menu.classList.remove('is-open');
+        });
+
+        document.querySelectorAll('[data-role="drive-card-menu-toggle"][aria-expanded="true"]').forEach((toggle) => {
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      };
+
+      document.querySelectorAll('[data-role="drive-card-menu-toggle"]').forEach((toggle) => {
+        toggle.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const wrapper = toggle.closest('.drive-folder-actions');
+          const menu = wrapper ? wrapper.querySelector('[data-role="drive-card-menu"]') : null;
+          const shouldOpen = menu ? !menu.classList.contains('is-open') : false;
+
+          closeCardMenus();
+
+          if (menu && shouldOpen) {
+            menu.classList.add('is-open');
+            toggle.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+      document.addEventListener('click', closeCardMenus);
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeCardMenus();
+        }
+      });
+
       const itemTypeField = document.querySelector('[data-role="item-type"]');
       const itemUrlWrapper = document.querySelector('[data-role="item-url"]');
       const itemUploadWrapper = document.querySelector('[data-role="item-upload"]');
@@ -414,6 +857,29 @@
         };
         itemTypeField.addEventListener('change', syncItemType);
         syncItemType();
+      }
+
+      const rootFolderName = document.querySelector('[data-role="root-folder-name"]');
+      const rootFolderPreviewName = document.querySelector('[data-role="root-folder-preview-name"]');
+      const rootFolderPreviewRole = document.querySelector('[data-role="root-folder-preview-role"]');
+      const rootRoleFields = document.querySelectorAll('input[name="access_role"][type="radio"]');
+
+      if (rootFolderName && rootFolderPreviewName) {
+        const syncPreviewName = () => {
+          const name = rootFolderName.value.trim();
+          rootFolderPreviewName.textContent = name || 'Nouveau dossier';
+        };
+        rootFolderName.addEventListener('input', syncPreviewName);
+        syncPreviewName();
+      }
+
+      if (rootFolderPreviewRole && rootRoleFields.length > 0) {
+        const syncPreviewRole = () => {
+          const selected = document.querySelector('input[name="access_role"][type="radio"]:checked');
+          rootFolderPreviewRole.textContent = selected ? selected.getAttribute('data-role-name') : 'Tous les roles';
+        };
+        rootRoleFields.forEach((field) => field.addEventListener('change', syncPreviewRole));
+        syncPreviewRole();
       }
     })();
   </script>

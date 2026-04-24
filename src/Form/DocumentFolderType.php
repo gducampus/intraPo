@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\DocumentFolder;
+use App\Entity\DocumentTag;
 use App\Repository\RoleRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -47,6 +48,24 @@ class DocumentFolderType extends AbstractType
                 'required' => false,
                 'empty_data' => '0',
                 'label' => 'Ordre',
+            ])
+            ->add('tags', EntityType::class, [
+                'class' => DocumentTag::class,
+                'required' => false,
+                'multiple' => true,
+                'expanded' => false,
+                'choice_label' => 'name',
+                'label' => 'Tags',
+                'attr' => [
+                    'class' => 'form-control text-sm js-select2',
+                    'data-placeholder' => 'Selectionner un ou plusieurs tags',
+                ],
+            ])
+            ->add('newTags', TextType::class, [
+                'required' => false,
+                'mapped' => false,
+                'label' => 'Nouveaux tags',
+                'help' => 'Separez plusieurs tags par des virgules.',
             ])
         ;
 

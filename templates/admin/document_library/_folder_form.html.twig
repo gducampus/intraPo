@@ -45,6 +45,21 @@
       {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3, 'placeholder': 'Description du contenu'}}) }}
       {{ form_errors(form.description) }}
     </div>
+
+    <div class="grid sm:grid-cols-2 gap-6 mt-6">
+      <div>
+        {{ form_label(form.tags, 'Tags', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.tags) }}
+        {{ form_errors(form.tags) }}
+        <p class="mt-1 text-xs text-muted">Selectionnez un ou plusieurs tags existants.</p>
+      </div>
+      <div>
+        {{ form_label(form.newTags, 'Creer des tags', {'label_attr': {'class': 'block text-sm font-medium text-text mb-1.5'}}) }}
+        {{ form_widget(form.newTags, {'attr': {'class': 'form-control', 'placeholder': 'Ex : Formation, Video'}}) }}
+        {{ form_errors(form.newTags) }}
+        <p class="mt-1 text-xs text-muted">Les tags inexistants seront crees automatiquement.</p>
+      </div>
+    </div>
   </div>
 
   {% if not rootRoleSelectMode %}

@@ -4,9 +4,11 @@ namespace App\Controller\Admin;
 
 use App\Entity\DocumentFolder;
 use App\Entity\DocumentItem;
+use App\Entity\DocumentTag;
 use App\Form\DocumentFolderType;
 use App\Form\DocumentItemType;
 use App\Repository\DocumentFolderRepository;
+use App\Repository\DocumentTagRepository;
 use App\Repository\RoleRepository;
 use App\Service\DocumentStorageService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,6 +30,7 @@ final class DocumentLibraryController extends AbstractController
         Request $request,
         DocumentFolderRepository $folderRepository,
         RoleRepository $roleRepository,
+        DocumentTagRepository $tagRepository,
         EntityManagerInterface $entityManager,
         DocumentStorageService $documentStorageService
     ): Response
@@ -47,7 +50,7 @@ final class DocumentLibraryController extends AbstractController
             $action = (string) $request->request->get('action', '');
 
             if ($action === 'create_folder') {
-                return $this->handleCreateFolder($request, $folderRepository, $entityManager, $currentFolder);
+                return $this->handleCreateFolder($request, $folderRepository, $tagRepository, $entityManager, $currentFolder);
             }
 
             if ($action === 'create_item') {
@@ -56,6 +59,7 @@ final class DocumentLibraryController extends AbstractController
         }
 
         $roles = $roleRepository->findAllOrderedByLabel();
+        $tags = $tagRepository->findAllOrderedByName();
 
         $childFolders = $folderRepository->findBy(
             ['parent' => $currentFolder],
@@ -80,6 +84,7 @@ final class DocumentLibraryController extends AbstractController
             'childFolders' => $childFolders,
             'items' => $items,
             'roles' => $roles,
+            'tags' => $tags,
         ]);
     }
 
@@ -88,6 +93,7 @@ final class DocumentLibraryController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         DocumentFolderRepository $folderRepository,
+        DocumentTagRepository $tagRepository,
         ?DocumentFolder $parent = null
     ): Response {
         $folder = new DocumentFolder();
@@ -101,6 +107,7 @@ final class DocumentLibraryController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($this->validateFolderSecurity($folder, $form)) {
+                $this->addNewTagsFromText($folder, (string) $form->get('newTags')->getData(), $tagRepository, $entityManager);
                 $entityManager->persist($folder);
                 $entityManager->flush();
 
@@ -120,6 +127,7 @@ final class DocumentLibraryController extends AbstractController
         Request $request,
         DocumentFolder $folder,
         DocumentFolderRepository $folderRepository,
+        DocumentTagRepository $tagRepository,
         EntityManagerInterface $entityManager
     ): Response {
         $form = $this->createForm(DocumentFolderType::class, $folder, [
@@ -129,6 +137,7 @@ final class DocumentLibraryController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($this->validateFolderSecurity($folder, $form)) {
+                $this->addNewTagsFromText($folder, (string) $form->get('newTags')->getData(), $tagRepository, $entityManager);
                 $entityManager->flush();
 
                 return $this->redirectToRoute('app_document_admin_index', [], Response::HTTP_SEE_OTHER);
@@ -360,6 +369,7 @@ final class DocumentLibraryController extends AbstractController
     private function handleCreateFolder(
         Request $request,
         DocumentFolderRepository $folderRepository,
+        DocumentTagRepository $tagRepository,
         EntityManagerInterface $entityManager,
         ?DocumentFolder $currentFolder
     ): Response {
@@ -411,6 +421,8 @@ final class DocumentLibraryController extends AbstractController
                 }
             }
         }
+
+        $this->syncFolderTagsFromRequest($folder, $request, $tagRepository, $entityManager);
 
         $entityManager->persist($folder);
         $entityManager->flush();
@@ -507,6 +519,76 @@ final class DocumentLibraryController extends AbstractController
         }
 
         return $this->redirectToRoute('app_document_admin_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    private function syncFolderTagsFromRequest(
+        DocumentFolder $folder,
+        Request $request,
+        DocumentTagRepository $tagRepository,
+        EntityManagerInterface $entityManager
+    ): void {
+        $tagValues = $request->request->all('tags');
+        $tagValues = is_array($tagValues) ? $tagValues : [];
+        $newTagNames = [];
+
+        foreach ($tagValues as $tagValue) {
+            $tagValue = trim((string) $tagValue);
+            if ($tagValue === '') {
+                continue;
+            }
+
+            if (str_starts_with($tagValue, 'new:')) {
+                $newTagName = trim(substr($tagValue, 4));
+                if ($newTagName !== '') {
+                    $newTagNames[] = $newTagName;
+                }
+
+                continue;
+            }
+
+            if (ctype_digit($tagValue)) {
+                $tag = $tagRepository->find((int) $tagValue);
+                if ($tag instanceof DocumentTag) {
+                    $folder->addTag($tag);
+                    continue;
+                }
+            }
+
+            $newTagNames[] = $tagValue;
+        }
+
+        $this->addNewTagsFromText($folder, implode(',', $newTagNames), $tagRepository, $entityManager);
+    }
+
+    private function addNewTagsFromText(
+        DocumentFolder $folder,
+        string $rawTags,
+        DocumentTagRepository $tagRepository,
+        EntityManagerInterface $entityManager
+    ): void {
+        $names = preg_split('/[,;\n]+/', $rawTags) ?: [];
+        $createdTagsBySlug = [];
+
+        foreach ($names as $name) {
+            $name = trim($name);
+            if ($name === '') {
+                continue;
+            }
+
+            $slug = DocumentTag::slugify($name);
+            if ($slug === '') {
+                continue;
+            }
+
+            $tag = $createdTagsBySlug[$slug] ?? $tagRepository->findOneBySlug($slug);
+            if (!$tag instanceof DocumentTag) {
+                $tag = (new DocumentTag())->setName($name);
+                $entityManager->persist($tag);
+                $createdTagsBySlug[$slug] = $tag;
+            }
+
+            $folder->addTag($tag);
+        }
     }
 
     /**

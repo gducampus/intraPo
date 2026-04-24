@@ -50,6 +50,12 @@ class DocumentFolder
     #[ORM\OrderBy(['position' => 'ASC', 'title' => 'ASC'])]
     private Collection $items;
 
+    /** @var Collection<int, DocumentTag> */
+    #[ORM\ManyToMany(targetEntity: DocumentTag::class, inversedBy: 'folders')]
+    #[ORM\JoinTable(name: 'document_folder_tag')]
+    #[ORM\OrderBy(['name' => 'ASC'])]
+    private Collection $tags;
+
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -60,6 +66,7 @@ class DocumentFolder
     {
         $this->children = new ArrayCollection();
         $this->items = new ArrayCollection();
+        $this->tags = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -207,6 +214,30 @@ class DocumentFolder
         if ($this->items->removeElement($item) && $item->getFolder() === $this) {
             $item->setFolder(null);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DocumentTag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(DocumentTag $tag): static
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(DocumentTag $tag): static
+    {
+        $this->tags->removeElement($tag);
 
         return $this;
     }

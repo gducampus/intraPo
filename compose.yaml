@@ -1,0 +1,23 @@
+services:
+  database:
+    image: mysql:8.0.32
+    container_name: intrapo-database
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: intraPo
+      MYSQL_USER: intrapo
+      MYSQL_PASSWORD: intrapo
+      MYSQL_ROOT_PASSWORD: intrapo_root
+    ports:
+      - "3307:3306"
+    volumes:
+      - intrapo_database_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uintrapo", "-pintrapo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  intrapo_database_data:
